@@ -14,7 +14,7 @@ services:
     volumes:
       - /var/lib/mysql
   domjudge:
-    image: domjudge/domjudge-contributor
+    image: domjudge
     hostname: domjudge-contributor
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
@@ -22,5 +22,5 @@ services:
     links:
       - mariadb:mariadb
     ports:
-      - 12345:80
+      - 80:80
     privileged: true
