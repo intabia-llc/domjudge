@@ -21,14 +21,14 @@
                     <a class="nav-link disabled"><i class="fas fa-book-open"></i> Problemset</a>
                 {% endif %}
             </li>
-            {% if have_printing %}
-                <li class="nav-item {% if current_route == 'team_print' %}active{% endif %}">
-                    <a class="nav-link" href="{{ path('team_print') }}"><i class="fas fa-file-alt"></i> Print</a>
-                </li>
-            {% endif %}
-            <li class="nav-item {% if current_route in ['team_scoreboard', 'team_team'] %}active{% endif %}">
-                <a class="nav-link" href="{{ path('team_scoreboard') }}"><i class="fas fa-list-ol"></i> Scoreboard</a>
-            </li>
+            {#{% if have_printing %}#}
+                {#<li class="nav-item {% if current_route == 'team_print' %}active{% endif %}">#}
+                    {#<a class="nav-link" href="{{ path('team_print') }}"><i class="fas fa-file-alt"></i> Print</a>#}
+                {#</li>#}
+            {#{% endif %}#}
+            {#<li class="nav-item {% if current_route in ['team_scoreboard', 'team_team'] %}active{% endif %}">#}
+                {#<a class="nav-link" href="{{ path('team_scoreboard') }}"><i class="fas fa-list-ol"></i> Scoreboard</a>#}
+            {#</li>#}
 
             {% if is_granted('ROLE_JURY') or is_granted('ROLE_BALLOON') %}
                 <li class="nav-item">
