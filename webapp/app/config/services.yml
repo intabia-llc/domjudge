@@ -75,6 +75,7 @@ services:
         options:
           protocol_version: 3
           referrals: false
+
   Symfony\Component\Security\Core\User\LdapUserProvider: '@security.user.provider.concrete.domjudge_ldap_provider'
 
   Symfony\Bridge\Doctrine\Security\User\EntityUserProvider: '@security.user.provider.concrete.domjudge_db_provider'
