@@ -19,6 +19,32 @@
             {% else %}
                 {{ form_start(form) }}
                 <div class="modal-body">
+
+                    <div class="tab-content source-tab">
+                        {#{%- for file in files %}#}
+
+                            {#<div class="tab-pane fade {% if loop.first %}show active{% endif %}" #}
+                                 {#role="tabpanel">#}
+                                <div class="mb-1">
+                                    {#<a class="btn btn-secondary btn-sm"#}
+                                       {#href="{{ path('jury_submission_source', {submission: submission.submitid, fetch: file.rank}) }}">#}
+                                        {#<i class="fas fa-download"></i> Download#}
+                                    {#</a>#}
+                                    <a class="btn btn-secondary btn-sm">
+                                       {#href="{{ path('jury_submission_edit_source', {submission: submission.submitid, rank: file.rank}) }}">#}
+                                        <i class="fas fa-pencil-alt"></i> Edit
+                                    </a>
+                                </div>
+
+                                {#{{ " " |codeEditor("", "1", null) }}#}
+                            {#</div>#}
+                        {#{%- endfor %}#}
+
+                    </div>
+
+
+
+
                     {{ form_row(form.code) }}
                     {{ form_row(form.problem) }}
                     {{ form_row(form.language) }}
