@@ -177,7 +177,6 @@ class SubmissionController extends BaseController
                 ->leftJoin('jr.judging_run_output', 'jro')
                 ->select('t', 'jr', 'tc', 'jro')
                 ->andWhere('t.problem = :problem')
-                ->andWhere('t.sample = 1')
                 ->setParameter(':judging', $judging)
                 ->setParameter(':problem', $judging->getSubmission()->getProblem())
                 ->orderBy('t.rank')

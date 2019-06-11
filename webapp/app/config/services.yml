@@ -3,64 +3,79 @@
 parameters:
 
 services:
-    # default configuration for services in *this* file
-    _defaults:
-        # automatically injects dependencies in your services
-        autowire: true
-        # automatically registers your services as commands, event subscribers, etc.
-        autoconfigure: true
-        # this means you cannot fetch services directly from the container via $container->get()
-        # if you need to do this, you can override this setting on individual services
-        public: false
+  # default configuration for services in *this* file
+  _defaults:
+    # automatically injects dependencies in your services
+    autowire: true
+    # automatically registers your services as commands, event subscribers, etc.
+    autoconfigure: true
+    # this means you cannot fetch services directly from the container via $container->get()
+    # if you need to do this, you can override this setting on individual services
+    public: false
 
-    Twig\Extensions\TextExtension:
-        tags:
-            - { name: twig.extension }
+  Twig\Extensions\TextExtension:
+    tags:
+      - { name: twig.extension }
 
-    DOMJudgeBundle\:
-        resource: '../../src/DOMJudgeBundle/*'
-        exclude: '../../src/DOMJudgeBundle/{Entity,Repository,Tests}'
+  DOMJudgeBundle\:
+    resource: '../../src/DOMJudgeBundle/*'
+    exclude: '../../src/DOMJudgeBundle/{Entity,Repository,Tests}'
 
-    DOMJudgeBundle\Serializer\:
-        resource: '../../src/DOMJudgeBundle/Serializer/*'
-        tags:
-            -   name: jms_serializer.event_subscriber
+  DOMJudgeBundle\Serializer\:
+    resource: '../../src/DOMJudgeBundle/Serializer/*'
+    tags:
+      - name: jms_serializer.event_subscriber
 
-    DOMJudgeBundle\ApiDescriber\ParameterRefMergeDescriber:
-        tags:
-            -   name: nelmio_api_doc.describer
-                priority: -999
+  DOMJudgeBundle\ApiDescriber\ParameterRefMergeDescriber:
+    tags:
+      - name: nelmio_api_doc.describer
+        priority: -999
 
-    DOMJudgeBundle\EventListener\ApiHeadersListener:
-        tags:
-            -   name: kernel.event_listener
-                event: kernel.response
-                method: onKernelResponse
+  DOMJudgeBundle\EventListener\ApiHeadersListener:
+    tags:
+      - name: kernel.event_listener
+        event: kernel.response
+        method: onKernelResponse
 
-    DOMJudgeBundle\EventListener\BodyTooBigListener:
-        tags:
-            -   name: kernel.event_listener
-                event: kernel.controller
-                method: onKernelController
+  DOMJudgeBundle\EventListener\BodyTooBigListener:
+    tags:
+      - name: kernel.event_listener
+        event: kernel.controller
+        method: onKernelController
 
-    DOMJudgeBundle\Security\UserStateUpdater:
-        tags:
-            -   name: kernel.event_listener
-                event: security.authentication.success
-                method: updateUserState
+  DOMJudgeBundle\Security\UserStateUpdater:
+    tags:
+      - name: kernel.event_listener
+        event: security.authentication.success
+        method: updateUserState
 
-    DOMJudgeBundle\Doctrine\HashPasswordSubscriber:
-        tags:
-            - { name: doctrine.event_subscriber, connection: default }
+  DOMJudgeBundle\Doctrine\HashPasswordSubscriber:
+    tags:
+      - { name: doctrine.event_subscriber, connection: default }
 
-    DOMJudgeBundle\Service\CheckConfigService:
-        arguments:
-            $debug: '%kernel.debug%'
+  DOMJudgeBundle\Service\CheckConfigService:
+    arguments:
+      $debug: '%kernel.debug%'
 
-    DOMJudgeBundle\Service\BaylorCmsService:
-        arguments:
-            $domjudgeVersion: '%domjudge.version%'
+  DOMJudgeBundle\Service\BaylorCmsService:
+    arguments:
+      $domjudgeVersion: '%domjudge.version%'
 
-    DOMJudgeBundle\Controller\Jury\ImportExportController:
-        arguments:
-            $domjudgeVersion: '%domjudge.version%'
+  DOMJudgeBundle\Controller\Jury\ImportExportController:
+    arguments:
+      $domjudgeVersion: '%domjudge.version%'
+
+  Symfony\Component\Ldap\Ldap:
+    arguments: ['@Symfony\Component\Ldap\Adapter\ExtLdap\Adapter']
+
+  Symfony\Component\Ldap\Adapter\ExtLdap\Adapter:
+    arguments:
+      - host: 192.168.1.20
+        port: 389
+        options:
+          protocol_version: 3
+          referrals: false
+
+  Symfony\Component\Security\Core\User\LdapUserProvider: '@security.user.provider.concrete.domjudge_ldap_provider'
+
+  Symfony\Bridge\Doctrine\Security\User\EntityUserProvider: '@security.user.provider.concrete.domjudge_db_provider'

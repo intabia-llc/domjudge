@@ -55,10 +55,10 @@
 
         {% if showSampleOutput and judging.result != 'compiler-error' %}
             <hr/>
-            <h4 class="text-center">Run(s) on the provided sample data</h4>
+            <h4 class="text-center">Run(s) result</h4>
 
             {% if runs is empty %}
-                <p class="nodata">No sample cases available.</p>
+                <p class="nodata">No runs available.</p>
             {% else %}
                 {% for run in runs %}
                     <h5 id="run-{{ run.rank }}" class="text-center mt-4">Run {{ run.rank }}</h5>
