@@ -10,57 +10,94 @@
 
 {% block content %}
 
-<h1>
-    {{ data.problem.name }}
-</h1>
+    <h1>
+        {{ data.problem.name }}
+    </h1>
 
-<div class="row" style="height: 100%">
+    <div class="row" style="height: 100%">
 
-    <div class="col" style="height: 100%">
+        <div class="col" style="height: 100%">
 
-        <h3 class="teamoverview">Problem text</h3>
-        <embed src="/team/problems/{{ data.problem.probid }}/text" class="col" style="height: 100%"
-               type="application/pdf">
-
-    </div>
-
-    <div class="col">
-        {{ form_start(form) }}
-
-        <h3 class="teamoverview">Problem solution</h3>
-
-        <ul class="nav nav-tabs source-tab-nav">
-
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" role="tab">
-                    Code:
-                </a>
-            </li>
-
-        </ul>
-
-        <div class="tab-content source-tab">
-
-            <div class="tab-pane fade show active" id="source_code" role="tabpanel">
-                {{ file.sourcecode | codeEditor(1, 'java', true, 'form_source') }}
-
-                <script>
-                    $(function () {
-                        $('#form_source').closest('.form-group').hide();
-                    });
-                </script>
-            </div>
+            <h3 class="teamoverview">Problem text</h3>
+            <embed src="/team/problems/{{ data.problem.probid }}/text" class="col" style="height: 100%"
+                   type="application/pdf">
 
         </div>
 
+        <div class="col">
+            {{ form_start(form) }}
 
-        <div class="row">
-            <div class="col-lg-4">
-                {{ form_widget(form) }}
+            <h3 class="teamoverview">Problem solution</h3>
+
+            <ul class="nav nav-tabs source-tab-nav">
+
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" role="tab">
+                        Code:
+                    </a>
+                </li>
+
+            </ul>
+
+            <div class="tab-content source-tab">
+
+                <div class="tab-pane fade show active" id="source_code" role="tabpanel">
+                    {{ file.sourcecode | codeEditor(1, 'java', true, 'form_source') }}
+
+                    <script>
+                        $(function () {
+                            $('#form_source').closest('.form-group').hide();
+                        });
+                    </script>
+                </div>
+
             </div>
+
+
+            <div class="row">
+                <div class="col-lg-4">
+                    {{ form_widget(form) }}
+                </div>
+            </div>
+            <script>
+
+                function getAceLanguage(language) {
+                    switch (language) {
+                        case 'c':
+                        case 'cpp':
+                        case 'cxx':
+                            return 'c_cpp';
+                        case 'pas':
+                            return 'pascal';
+                        case 'hs':
+                            return 'haskell';
+                        case 'pl':
+                            return 'perl';
+                        case 'bash':
+                            return 'sh';
+                        case 'py2':
+                        case 'py3':
+                            return 'python';
+                        case 'adb':
+                            return 'ada';
+                        case 'plg':
+                            return 'prolog';
+                        case 'rb':
+                            return 'ruby';
+                    }
+                    return language;
+                }
+
+                let selectWithLanguage = document.getElementById('form_language');
+                selectWithLanguage.addEventListener('change', (event) => {
+                    let editor = ace.edit("editor1");
+                    let language = getAceLanguage(selectWithLanguage.value);
+                    editor.getSession().setMode(`ace/mode/${language}`)
+                });
+            </script>
         </div>
     </div>
 
     {{ form_end(form) }}
 
-    {% endblock %}
+{% endblock %}

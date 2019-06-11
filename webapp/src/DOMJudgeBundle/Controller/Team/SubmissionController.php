@@ -248,7 +248,7 @@ class SubmissionController extends BaseController
                 }
             ])
             ->setAction($this->generateUrl('team_index'))
-            ->add('submit', SubmitType::class);
+            ->add('submit code', SubmitType::class);
 
         $form = $formBuilder
             ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
