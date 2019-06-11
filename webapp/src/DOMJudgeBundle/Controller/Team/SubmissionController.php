@@ -296,15 +296,12 @@ class SubmissionController extends BaseController
         if ($request->isXmlHttpRequest()) {
             return $this->render('@DOMJudge/team/submit_modal.html.twig', $data);
         } else {
-
-
             return $this->render('@DOMJudge/team/submission_edit_source.html.twig', [
                 'data' => $data,
                 'file' => $file,
                 'form' => $form->createView(),
             ]);
         }
-
 
     }
 }
