@@ -6,19 +6,24 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
 use DOMJudgeBundle\Controller\BaseController;
+use DOMJudgeBundle\Entity\Contest;
 use DOMJudgeBundle\Entity\Judging;
 use DOMJudgeBundle\Entity\Problem;
 use DOMJudgeBundle\Entity\Language;
 use DOMJudgeBundle\Entity\Submission;
+use DOMJudgeBundle\Entity\SubmissionFileWithSourceCode;
 use DOMJudgeBundle\Entity\Testcase;
 use DOMJudgeBundle\Form\Type\SubmitProblemType;
 use DOMJudgeBundle\Service\DOMJudgeService;
 use DOMJudgeBundle\Service\SubmissionService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -130,6 +135,79 @@ class SubmissionController extends BaseController
         }
     }
 
+
+    /**
+     * @Route("/submit-redactor", name="team_submit_redactor")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function createRedactorAction(Request $request)
+    {
+        $user    = $this->dj->getUser();
+        $team    = $user->getTeam();
+        $contest = $this->dj->getCurrentContest($user->getTeamid());
+        $form    = $this->formFactory
+            ->createBuilder(SubmitProblemType::class)
+            ->setAction($this->generateUrl('team_submit_redactor'))
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($contest === null) {
+                $this->addFlash('danger', 'No active contest');
+            } elseif (!$this->dj->checkrole('jury') && !$contest->getFreezeData()->started()) {
+                $this->addFlash('danger', 'Contest has not yet started');
+            } else {
+                /** @var Problem $problem */
+                $problem = $form->get('problem')->getData();
+                /** @var Language $language */
+                $language = $form->get('language')->getData();
+//                /** @var UploadedFile[] $files */
+//                $files      = $form->get('code')->getData();
+//                if (!is_array($files)) {
+//                    $files = [$files];
+//                }
+
+
+                $tmpdir        = $this->dj->getDomjudgeTmpDir();
+
+                $fileSystem = new Filesystem();
+                $fileSystem->mkdir($tmpdir);
+            $filename = '/c2.s6.t3.p1.java.0.code.java';
+            $tmpfname = $tmpdir .$filename;
+            $fileSystem->touch($tmpfname);
+                $files[] = new UploadedFile($tmpfname, $filename, null, null, null, true);
+
+
+                $entryPoint = $form->get('entry_point')->getData() ?: null;
+                $submission = $this->submissionService->submitSolution($team, $problem->getProbid(), $contest,
+                    $language, $files, null, $entryPoint, null, null,
+                    $message);
+
+                if ($submission) {
+                    $this->dj->auditlog('submission', $submission->getSubmitid(), 'added', 'via teampage',
+                        null, $contest->getCid());
+                    $this->addFlash('success',
+                        '<strong>Submission done!</strong> Watch for the verdict in the list below.');
+                } else {
+                    $this->addFlash('danger', $message);
+                }
+                return $this->redirectToRoute('team_index');
+            }
+        }
+
+        $data = ['form' => $form->createView()];
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('@DOMJudge/team/submit_modal.html.twig', $data);
+        } else {
+            return $this->render('@DOMJudge/team/submit.html.twig', $data);
+        }
+    }
+
+
     /**
      * @Route("/submission/{submitId}", name="team_submission", requirements={"submitId": "\d+"})
      * @param Request $request
@@ -200,74 +278,39 @@ class SubmissionController extends BaseController
     }
 
     /**
-     * @Route("/{submission}/edit-source", name="jury_submission_edit_source")
+     * @Route("/submission/source/{probId}/{langId}", name="code_editor", requirements={"probId": "\d+", "langId": "\S+"})
+     * @param int $probId
+     * @param string $langId
      * @param Request $request
-     * @param Submission $submission
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\DBAL\DBALException
      */
-    public function editorAction(Request $request, Submission $submission)
-//        int $probId, string $langId)
-//    @Route("/submission/source/{probId}/{langId}", name="code_editor", requirements={"probId": "\d+", "langId": "\S+"})
+    public function editorAction(int $probId, string $langId, Request $request)
     {
-//        /** @var Language $languages */
+        /** @var Language $languages */
         $languages = $this->em->getRepository(Language::class)->findBy(['allowSubmit' => true]);
-//
-//        /** @var Problem $problem */
-        $problem = $this->em->getRepository(Problem::class)->find(1);
-//
-//        return $this->render('@DOMJudge/team/submission_source.html.twig', [
-//            'problem' => $problem,
-//            'languages' => $languages,
-//            'curLang' => $langId,
-//        ]);
 
+        /** @var Problem $problem */
+        $problem = $this->em->getRepository(Problem::class)->find($probId);
 
-//        if (!$this->dj->getUser()->getTeam() || !$this->dj->checkrole('team')) {
-//            $this->addFlash('danger', 'You cannot re-submit code without being a team.');
-//            return $this->redirectToLocalReferrer($this->router, $request, $this->generateUrl('jury_submission',
-//                ['submitId' => $submission->getSubmitid()]));
-//        }
+        $user    = $this->dj->getUser();
+        $team    = $user->getTeam();
+        $contest = $this->dj->getCurrentContest($user->getTeamid());
 
-//        /** @var SubmissionFileWithSourceCode[] $files */
-//        $files = $this->em->createQueryBuilder()
-//            ->from('DOMJudgeBundle:SubmissionFileWithSourceCode', 'file')
-//            ->select('file')
-//            ->andWhere('file.submission = :submission')
-////            ->setParameter(':submission', $submission)
-//            ->orderBy('file.rank')
-//            ->getQuery()
-//            ->getResult();
+        $file = new SubmissionFileWithSourceCode();
+        $file->setSourcecode("\n\n\n\n\n\n");
 
-//        $data = [
-//            'problem' => $submission->getProblem(),
-//            'language' => $submission->getLanguage(),
-//            'entry_point' => $submission->getEntryPoint(),
-//        ];
-//
-//        $data = [
-//            'problem' => $problem,
-//            'language' => $languages,
-////            'entry_point' => $submission->getEntryPoint(),
-//        ];
+        $data = [
+            'problem' => $problem,
+            'language' => $languages,
+            'user' => $user,
+            'team' => $team,
+            'contest' => $contest,
+            'source_code' => $file->getSourcecode(),
+//            'entry_point' => 'we',
+        ];
 
-//        foreach ($files as $file) {
-//            $data['source' . $file->getRank()] = $file->getSourcecode();
-//        }
-
-//        $formBuilder = $this->createFormBuilder($data)
-        $formBuilder = $this->createFormBuilder()
-            ->add('problem', EntityType::class, [
-                'class' => 'DOMJudgeBundle\Entity\Problem',
-                'choice_label' => 'name',
-                'query_builder' => function (EntityRepository $er)  {
-                    return $er->createQueryBuilder('p')
-                        ->join('p.contest_problems', 'cp')
-                        ->andWhere('cp.allowSubmit = 1')
-                        ->andWhere('cp.contest = :contest')
-//                        ->setParameter(':contest', $submission->getContest())
-                        ->orderBy('p.name');
-                },
-            ])
+        $formBuilder = $this->createFormBuilder($data)
             ->add('language', EntityType::class, [
                 'class' => 'DOMJudgeBundle\Entity\Language',
                 'choice_label' => 'name',
@@ -277,52 +320,117 @@ class SubmissionController extends BaseController
                         ->orderBy('lang.name');
                 }
             ])
-            ->add('entry_point', TextType::class, [
-                'label' => 'Optional entry point',
-                'required' => false,
-            ])
-            ->add('submit', SubmitType::class);
+            ->setAction($this->generateUrl('team_index'));
 
-//        foreach ($files as $file) {
-//            $formBuilder->add('source' . $file->getRank(), TextareaType::class);
-//        }
+        $form = $formBuilder
+            ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
+                'langId' => $langId]))
+//            ->add('source_code', TextareaType::class)
+            ->getForm();
 
-        $form = $formBuilder->getForm();
-//
-//        // Handle the form if it is submitted
         $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($contest === null) {
+                $this->addFlash('danger', 'No active contest');
+            } elseif (!$this->dj->checkrole('jury') && !$contest->getFreezeData()->started()) {
+                $this->addFlash('danger', 'Contest has not yet started');
+            } else {
+                /** @var Language $language */
+                $language = $form->get('language')->getData();
+
+                $submittedData = $form->getData();
+
+                $tmpdir        = $this->dj->getDomjudgeTmpDir();
+
+                $fileSystem = new Filesystem();
+                $fileSystem->mkdir($tmpdir);
+                $filename = 'code.java';
+                $tmpfname = $tmpdir.'/'.$filename;
+                $fileSystem->touch($tmpfname);
+
+                error_log($submittedData['source_code']);
+//                $fileSystem->appendToFile($filename, $submittedData);
+                
+                file_put_contents($tmpfname, $submittedData['source_code']);
+                $files[] = new UploadedFile($tmpfname, $filename, null, null, null, true);
+
+//                $submission = $this->submissionService->submitSolution($team, $problem->getProbid(), $contest,
+//                    $language, $files, null, $entryPoint, null, null,
+//                    $message);
+                $submission = $this->submissionService->submitSolution($team,  $problem->getProbid(), $contest,
+                    $language, $files, null, null, null, null,
+                    $message);
+
+                if ($submission) {
+                    $this->dj->auditlog('submission', $submission->getSubmitid(), 'added', 'via teampage',
+                        null, $contest->getCid());
+                    $this->addFlash('success',
+                        '<strong>Submission done!</strong> Watch for the verdict in the list below.');
+                } else {
+                    $this->addFlash('danger', $message);
+                }
+                return $this->redirectToRoute('team_index');
+            }
+        }
+
+
+
+
+
+
+
+//
+        // Handle the form if it is submitted
+//        $form->handleRequest($request);
+//        $fileSystem = new Filesystem();
+//        $tmpdir        = $this->dj->getDomjudgeTmpDir();
+//
+//        $fileSystem->mkdir($tmpdir);
+////        $fileSystem->rename($tmpdir . '/c2.s2.t3.p3.bash.0.Max.odt', $tmpdir . '/c2.s2.t3.p3.bash.0.MaxMax.odt');
+//        $fileSystem->touch($tmpdir .'/c2.s6.t3.p1.java.0.code.java');
+//        $fileSystem->dumpFile($tmpdir . '/c2.s6.t3.p1.java.0.code.java', '');
 //        if ($form->isSubmitted() && $form->isValid()) {
 //            $submittedData = $form->getData();
 //
-//            /** @var UploadedFile[] $filesToSubmit */
+////            /** @var UploadedFile[] $filesToSubmit */
 //            $filesToSubmit = [];
 //            $tmpdir        = $this->dj->getDomjudgeTmpDir();
-//            foreach ($files as $file) {
-//                if (!($tmpfname = tempnam($tmpdir, "edit_source-"))) {
-//                    throw new ServiceUnavailableHttpException(null, "Could not create temporary file.");
-//                }
-//                file_put_contents($tmpfname, $submittedData['source' . $file->getRank()]);
-//                $filesToSubmit[] = new UploadedFile($tmpfname, $file->getFilename(), null, null, null, true);
-//            }
+//
+////            $subFile = new File($tmpdir);
+//            $fileSystem = new Filesystem();
+////            $fileSystem->mkdir($tmpdir);
+//            $filename = '/c2.s6.t3.p1.java.0.code.java';
+//            $tmpfname = $tmpdir .$filename;
+//            $fileSystem->touch($tmpfname);
+////            foreach ($files as $file) {
+////                if (!($tmpfname = tempnam($tmpdir, "edit_source-"))) {
+////                    throw new ServiceUnavailableHttpException(null, "Could not create temporary file.");
+////                }
+////                file_put_contents($tmpfname, $submittedData['source' . $file->getRank()]);
+////                $filesToSubmit[] = new UploadedFile($tmpfname, $file->getFilename(), null, null, null, true);
+//                $filesToSubmit[] = new UploadedFile($tmpfname, $filename, null, null, null, true);
+////            }
 //
 //            $team = $this->dj->getUser()->getTeam();
-//            /** @var Language $language */
+////            /** @var Language $language */
 //            $language   = $submittedData['language'];
-//            $entryPoint = $submittedData['entry_point'];
-//            if ($language->getRequireEntryPoint() && $entryPoint === null) {
-//                $entryPoint = '__auto__';
-//            }
+////            $entryPoint = $submittedData['entry_point'];
+////            if ($language->getRequireEntryPoint() && $entryPoint === null) {
+////                $entryPoint = '__auto__';
+////            }
 //            $submittedSubmission = $this->submissionService->submitSolution(
 //                $team,
 //                $submittedData['problem'],
-////                $submission->getContest(),
+////null,
+//                '',
 //                $language,
 //                $filesToSubmit,
-////                $submission->getOriginalSubmission() ?? $submission,
-//                $entryPoint,
+//                '',
+//                '',
 //                null,
 //                null
-////                $message
+//////                $message
 //            );
 //
 //            foreach ($filesToSubmit as $file) {
@@ -337,16 +445,26 @@ class SubmissionController extends BaseController
 //            return $this->redirectToRoute('jury_submission', ['submitId' => $submittedSubmission->getSubmitid()]);
 //        }
 
-        $submission = new Submission();
+//        $submission = new Submission();
 //        $submission->submitid = 1;
-        return $this->render('@DOMJudge/team/submission_edit_source.html.twig', [
-            'submission' => $submission,
-            'submission' => null,
-//            'files' => $files,
-            'form' => $form->createView(),
+
+
+
+//        $data = ['form' => $form->createView()];
+
+        if ($request->isXmlHttpRequest()) {
+            return $this->render('@DOMJudge/team/submit_modal.html.twig', $data);
+        } else {
+
+
+            return $this->render('@DOMJudge/team/submission_edit_source.html.twig', [
+                'data' => $data,
+//            'submission' => $submission,
+            'file' => $file,
+                'form' => $form->createView(),
 //            'selected' => $request->query->get('rank'),
-            'selected' => null,
-        ]);
+            ]);        }
+
 
 
 

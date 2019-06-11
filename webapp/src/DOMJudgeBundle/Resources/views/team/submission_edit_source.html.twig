@@ -10,45 +10,75 @@
 
 {% block content %}
 
-    <h1>
-        Edit submission
-        {#<a href="{{ path('jury_submission', {submitId: submission.submitid}) }}">s{{ submission.submitid }}</a>#}
-        source files
-    </h1>
+<h1>
+    {{ data.problem.name }} {{ data.problem.probid }}
+</h1>
 
-    {{ form_start(form) }}
+<h2>{{ data.user.name }}</h2>
+<h2>{{ data.team.name }}</h2>
+<h2>{{ data.contest.name }}</h2>
 
-    <ul class="nav nav-tabs source-tab-nav">
-        {%- for file in files %}
+<div class="row" style="height: 100%">
+
+    <div class="col" style="height: 100%">
+
+        <h3 class="teamoverview">Problem text</h3>
+        <embed src="/team/problems/{{ data.problem.probid }}/text" class="col" style="height: 100%"
+               type="application/pdf">
+
+    </div>
+
+    <div class="col">
+        {{ form_start(form) }}
+
+        <h3 class="teamoverview">Problem solution</h3>
+
+        <ul class="nav nav-tabs source-tab-nav">
 
             <li class="nav-item">
-                <a class="nav-link {% if (selected is null and loop.first) or selected == file.rank %}active{% endif %}"
-                   data-toggle="tab" href="#source-{{ file.rank }}" role="tab">{{ file.filename }}</a>
+                <a class="nav-link active" data-toggle="tab" role="tab">
+                    Code:
+                </a>
             </li>
-        {%- endfor %}
 
-    </ul>
-    <div class="tab-content source-tab">
-        {%- for idx, file in files %}
+        </ul>
 
-            <div class="tab-pane fade {% if (selected is null and loop.first) or selected == file.rank %}show active{% endif %}"
-                 id="source-{{ file.rank }}" role="tabpanel">
-                {{ file.sourcecode | codeEditor(idx, submission.language.aceLanguage, true, 'form_source' ~ file.rank) }}
+        <div class="tab-content source-tab">
+
+            <div class="tab-pane fade show active" id="source_code" role="tabpanel">
+                {{ file.sourcecode | codeEditor(1, 'java', true, 'form_source' ~ file.rank) }}
+                {#{{ file.sourcecode | codeEditor(idx, submission.language.aceLanguage, true, 'form_source' ~ file.rank) }}#}
+
                 <script>
                     $(function () {
                         $('#form_source{{ file.rank }}').closest('.form-group').hide();
                     });
                 </script>
             </div>
-        {%- endfor %}
 
-    </div>
+        </div>
 
-    <div class="row">
-        <div class="col-lg-4">
-            {{ form_widget(form) }}
+
+        <div class="row">
+            <div class="col-lg-4">
+                {{ form_widget(form) }}
+            </div>
+        </div>
+
+        {#<div class="form-group" data-entry-point>#}
+        {#{{ form_label(form.entry_point) }}#}
+        {#{{ form_widget(form.entry_point) }}#}
+        {#<small class="form-text text-muted">The entry point for your code.</small>#}
+        {#</div>#}
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn-success btn">
+                <i class="fas fa-cloud-upload-alt"></i> Submit
+            </button>
         </div>
     </div>
+
     {{ form_end(form) }}
 
-{% endblock %}
+    {% endblock %}

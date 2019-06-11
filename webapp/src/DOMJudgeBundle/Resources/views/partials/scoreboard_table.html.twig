@@ -55,7 +55,16 @@
     {% endif %}
 
     <thead>
+
+    {#{% set link = path('jury_submission_edit_source', {submission: submission.submitid, rank: scoreboard.scores[previousTeam.teamid].rank}) %>#}
+
+
     {#path('code_editor', {'probId': problem.probid, 'langId': 'java' }) %}#}
+    {#{% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java' }) %}#}
+    {#{% set link = path('team_submit') %}#}
+    {#{% set link = path('team_submit_redactor') %} Ок. Отправка пустого файла на проверку#}
+
+
     <tr class="scoreheader">
         <th title="rank" scope="col">rank</th>
         <th title="team name" scope="col" colspan="{{ teamColspan }}">team</th>
@@ -68,7 +77,7 @@
                     {% if jury %}
                         {% set link = path('jury_problem', {'probId': problem.probid}) %}
                     {% elseif problem.problem.hasProblemtext %}
-                        {% set link = path('jury_submission_edit_source', {submission: submission.submitid, rank: scoreboard.scores[previousTeam.teamid].rank}) %>
+                        {% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java' }) %}
                         {% set target = '_blank' %}
                     {% endif %}
                 {% endif %}
