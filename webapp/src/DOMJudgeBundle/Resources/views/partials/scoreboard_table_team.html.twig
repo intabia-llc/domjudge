@@ -127,18 +127,49 @@
                     {#</a>#}
                 </div>
             </td>
-            <td>
-                <div class="text-center">
-                    <a class="btn btn-secondary" role="button"
-                       href="{{ path('code_editor', {'probId': problem.probid, 'langId': 'java' }) }}">
-                        Start solution
-                    </a>
-                </div>
-            </td>
 
+            {#<td>#}
+                {#<div class="text-center">#}
+                    {#<button onclick="al()"></button>#}
+                    {#<script>#}
+                        {#function al() #}{#}#}
+                            {#let submissions = {{ problem.submissions[0].submitid }}#}
+
+
+
+
+                            {#alert(submissions);#}
+                        {#}#}
+                    {#</script>#}
+                    {#<a class="btn btn-secondary" role="button"#}
+                       {#href="{{ path('code_editor', {'probId': problem.probid, 'langId': 'java' }) }}"#}
+                       {#disabled ="{% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect  %} true {% else %} false"{% endif %}>#}
+                       {#disabled ="true">#}
+                        {#Start solution#}
+                    {#</a>#}
+                {#</div>#}
+            {#</td>#}
             {% for score in scoreboard.scores %}
+
                 {# CSS class for correct/incorrect/neutral results #}
                 {% set scoreCssClass = 'score_neutral' %}
+                    <td>
+                        <div class="text-center">
+
+                            {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
+                            <a class="btn btn-secondary" role="button">
+                                Start solution
+                            </a>
+                    {% else %}
+                                <a class="btn btn-secondary" role="button"
+                                   href="{{ path('code_editor', {'probId': problem.probid, 'langId': 'java' }) }}">
+
+                                Start solution
+                                </a>
+                        {% endif %}
+
+                        </div>
+                    </td>
                 {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
                     {% set scoreCssClass = 'score_correct' %}
                     {% if scoreboard.solvedFirst(score.team, problem) %}

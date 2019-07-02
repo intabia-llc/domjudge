@@ -10,6 +10,7 @@ use DOMJudgeBundle\Entity\Contest;
 use DOMJudgeBundle\Entity\Judging;
 use DOMJudgeBundle\Entity\Problem;
 use DOMJudgeBundle\Entity\Language;
+use DOMJudgeBundle\Entity\ScoreCache;
 use DOMJudgeBundle\Entity\Submission;
 use DOMJudgeBundle\Entity\SubmissionFileWithSourceCode;
 use DOMJudgeBundle\Entity\Testcase;
@@ -20,6 +21,7 @@ use FOS\RestBundle\View\View;
 use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use function Symfony\Component\DependencyInjection\Tests\Fixtures\factoryFunction;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -207,10 +209,16 @@ class SubmissionController extends BaseController
             'runs' => $runs,
         ];
 
+        $correct = false;
+        error_log("RESULT : " . $judging->getResult());
         if (empty($judging->getResult())) {
             return $this->json(["content" => null]);
         }
-        return $this->json(["content" => $this->render('@DOMJudge/team/submission.html.twig', $data)->getContent()]);
+        if ($judging->getResult() === 'correct') {
+            $correct = true;
+        }
+        return $this->json(["content" => $this->render('@DOMJudge/team/submission.html.twig', $data)->getContent(),
+            "result" => $correct]);
 
     }
 
@@ -376,20 +384,19 @@ class SubmissionController extends BaseController
                 }
             ])
             ->setAction($this->generateUrl('team_index'))
-            ->add('submit code', SubmitType::class, ['label' => 'Submit Code']);
+            ->add('submit code', SubmitType::class, ['label' => 'Home']);
 
         $form = $formBuilder
             ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
                 'langId' => $langId]))
-            ->add('source', TextareaType::class)
+            ->add('source', TextareaType::class, ['required' => false])
             ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
                 'langId' => $langId]))
-            ->add('example', TextareaType::class,['required' => false])
+            ->add('example', TextareaType::class, ['required' => false])
             ->getForm();
 
         $form->handleRequest($request);
 
-        error_log("DETAILS: " );
         if ($form->isSubmitted() && $form->isValid()) {
             return $this->redirectToRoute('team_index');
         }

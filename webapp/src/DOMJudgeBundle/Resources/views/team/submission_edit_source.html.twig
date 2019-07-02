@@ -119,7 +119,7 @@
             </script>
 
             <div>
-                <button type="button" id="ajax_submit_btn" class="btn-primary btn" onclick="ajaxSubmitFunc()">Test</button>
+                <button type="button" id="ajax_submit_btn" class="btn-primary btn" onclick="ajaxSubmitFunc()">Verify & Submit</button>
             </div>
             <div id="details" style="margin-top: 15px"></div>
             <script>
@@ -162,6 +162,7 @@
                         console.log(details);
                         let content = details.content;
 
+                        let result = details.result;
                         if(content !== null) {
                             console.log(content);
                             let baseContent = content.replace("<div class=\"progress\" style=\"margin-top:-9px; height: 10px;\" data-progress-bar>\n", "");
@@ -169,6 +170,10 @@
                             $("#details").html("");
 
                             $("#details").append("<div id=\"content\">" + baseContent + "</div>");
+
+                            if (result) {
+                                $("#ajax_submit_btn").attr("disabled","true")
+                            }
 
                             if (intervalId !== null) {
                                 clearInterval(intervalId);
