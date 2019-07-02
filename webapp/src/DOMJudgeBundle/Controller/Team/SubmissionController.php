@@ -16,19 +16,28 @@ use DOMJudgeBundle\Entity\Testcase;
 use DOMJudgeBundle\Form\Type\SubmitProblemType;
 use DOMJudgeBundle\Service\DOMJudgeService;
 use DOMJudgeBundle\Service\SubmissionService;
+use FOS\RestBundle\View\View;
+use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use FOS\RestBundle\Controller\Annotations as Rest;
+
 
 //use Dompdf\Options;
 use PdfParser;
@@ -137,6 +146,76 @@ class SubmissionController extends BaseController
     }
 
     /**
+     * @Route("/submission/details/{submitId}", name="details", requirements={"submitId": "\d+"})
+     * @param Request $request
+     * @param int $submitId
+     * @return string
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function viewDetails(Request $request, int $submitId)
+    {
+        $verificationRequired = (bool)$this->dj->dbconfig_get('verification_required', false);;
+        $showCompile = $this->dj->dbconfig_get('show_compile', 2);
+        $showSampleOutput = $this->dj->dbconfig_get('show_sample_output', 0);
+        $user = $this->dj->getUser();
+        $team = $user->getTeam();
+        $contest = $this->dj->getCurrentContest($team->getTeamid());
+        /** @var Judging $judging */
+        $judging = $this->em->createQueryBuilder()
+            ->from('DOMJudgeBundle:Judging', 'j')
+            ->join('j.submission', 's')
+            ->join('s.contest_problem', 'cp')
+            ->join('cp.problem', 'p')
+            ->join('s.language', 'l')
+            ->select('j', 's', 'cp', 'p', 'l')
+            ->andWhere('j.submitid = :submitId')
+            ->andWhere('j.valid = 1')
+            ->andWhere('s.team = :team')
+            ->setParameter(':submitId', $submitId)
+            ->setParameter(':team', $team)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        // Update seen status when viewing submission
+        if ($judging && $judging->getSubmission()->getSubmittime() < $contest->getEndtime() && (!$verificationRequired || $judging->getVerified())) {
+            $judging->setSeen(true);
+            $this->em->flush();
+        }
+
+        /** @var Testcase[] $runs */
+        $runs = [];
+        if ($showSampleOutput && $judging && $judging->getResult() !== 'compiler-error') {
+            $runs = $this->em->createQueryBuilder()
+                ->from('DOMJudgeBundle:Testcase', 't')
+                ->join('t.testcase_content', 'tc')
+                ->leftJoin('t.judging_runs', 'jr', Join::WITH, 'jr.judging = :judging')
+                ->leftJoin('jr.judging_run_output', 'jro')
+                ->select('t', 'jr', 'tc', 'jro')
+                ->andWhere('t.problem = :problem')
+                ->setParameter(':judging', $judging)
+                ->setParameter(':problem', $judging->getSubmission()->getProblem())
+                ->orderBy('t.rank')
+                ->getQuery()
+                ->getResult();
+        }
+
+        $data = [
+            'judging' => $judging,
+            'verificationRequired' => $verificationRequired,
+            'showCompile' => $showCompile,
+            'showSampleOutput' => $showSampleOutput,
+            'runs' => $runs,
+        ];
+
+        if (empty($judging->getResult())) {
+            return $this->json(["content" => null]);
+        }
+        return $this->json(["content" => $this->render('@DOMJudge/team/submission.html.twig', $data)->getContent()]);
+
+    }
+
+
+    /**
      * @Route("/submission/{submitId}", name="team_submission", requirements={"submitId": "\d+"})
      * @param Request $request
      * @param int $submitId
@@ -206,6 +285,55 @@ class SubmissionController extends BaseController
     }
 
     /**
+     * @Route("/submission/source/ajax/{probId}/{langId}", name="code_submit_ajax", requirements={"probId": "\d+", "langId": "\S+"})
+     * @param int $probId
+     * @param string $langId
+     * @param Request $request
+     * @return Response
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function submitCodeAjax(int $probId, string $langId, Request $request) {
+
+        /** @var Language $language */
+        $language = $this->em->getRepository(Language::class)->find($langId);
+
+        /** @var Problem $problem */
+        $problem = $this->em->getRepository(Problem::class)->find($probId);
+
+        $user = $this->dj->getUser();
+        $team = $user->getTeam();
+        $contest = $this->dj->getCurrentContest($user->getTeamid());
+
+        $source = $request->request->get('source', '');
+
+        $file = new SubmissionFileWithSourceCode();
+        $file->setSourcecode($source);
+
+        $submission = new Submission();
+        if ($contest === null) {
+            $this->addFlash('danger', 'No active contest');
+        } elseif (!$this->dj->checkrole('jury') && !$contest->getFreezeData()->started()) {
+            $this->addFlash('danger', 'Contest has not yet started');
+        } else {
+            $tmpdir = $this->dj->getDomjudgeTmpDir();
+
+            $fileSystem = new Filesystem();
+            $fileSystem->mkdir($tmpdir);
+            $filename = 'code.java';
+            $tmpfname = $tmpdir . '/' . $filename;
+            $fileSystem->touch($tmpfname);
+            file_put_contents($tmpfname, $source);
+            $files[] = new UploadedFile($tmpfname, $filename, null, null, null, true);
+            $submission = $this->submissionService->submitSolution($team, $problem->getProbid(), $contest,
+                $language, $files, null, null, null, null,
+                $message);
+        }
+
+        return $this->json(['submitId' => $submission->getSubmitid()]);
+
+    }
+
+    /**
      * @Route("/submission/source/{probId}/{langId}", name="code_editor", requirements={"probId": "\d+", "langId": "\S+"})
      * @param int $probId
      * @param string $langId
@@ -248,50 +376,22 @@ class SubmissionController extends BaseController
                 }
             ])
             ->setAction($this->generateUrl('team_index'))
-            ->add('submit code', SubmitType::class);
+            ->add('submit code', SubmitType::class, ['label' => 'Submit Code']);
 
         $form = $formBuilder
             ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
                 'langId' => $langId]))
             ->add('source', TextareaType::class)
+            ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
+                'langId' => $langId]))
+            ->add('example', TextareaType::class,['required' => false])
             ->getForm();
 
         $form->handleRequest($request);
 
+        error_log("DETAILS: " );
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($contest === null) {
-                $this->addFlash('danger', 'No active contest');
-            } elseif (!$this->dj->checkrole('jury') && !$contest->getFreezeData()->started()) {
-                $this->addFlash('danger', 'Contest has not yet started');
-            } else {
-                /** @var Language $language */
-                $language = $form->get('language')->getData();
-
-                $submittedData = $form->getData();
-
-                $tmpdir = $this->dj->getDomjudgeTmpDir();
-
-                $fileSystem = new Filesystem();
-                $fileSystem->mkdir($tmpdir);
-                $filename = 'code.java';
-                $tmpfname = $tmpdir . '/' . $filename;
-                $fileSystem->touch($tmpfname);
-                file_put_contents($tmpfname, $submittedData['source']);
-                $files[] = new UploadedFile($tmpfname, $filename, null, null, null, true);
-                $submission = $this->submissionService->submitSolution($team, $problem->getProbid(), $contest,
-                    $language, $files, null, null, null, null,
-                    $message);
-
-                if ($submission) {
-                    $this->dj->auditlog('submission', $submission->getSubmitid(), 'added', 'via teampage',
-                        null, $contest->getCid());
-                    $this->addFlash('success',
-                        '<strong>Submission done!</strong> Watch for the verdict in the list below.');
-                } else {
-                    $this->addFlash('danger', $message);
-                }
-                return $this->redirectToRoute('team_index');
-            }
+            return $this->redirectToRoute('team_index');
         }
         if ($request->isXmlHttpRequest()) {
             return $this->render('@DOMJudge/team/submit_modal.html.twig', $data);

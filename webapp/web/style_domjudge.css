@@ -170,6 +170,54 @@ del {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+
+.scoreboard-team {
+    border-collapse: collapse;
+    clear: both;
+}
+.scoreboard-team td {
+    font-size: small;
+    vertical-align: middle;
+    text-align: center;
+}
+.scoreboard-team td div {
+    width: 10em;
+    font-size: 120%;
+    display: inline-block;
+}
+.scoreboard-team td div span {
+    font-weight: normal;
+    font-size: 70%;
+    display: block;
+}
+.scoreboard-team tr {
+    border-bottom: 1px solid black;
+    height: 42px;
+}
+.scoreboard-team td, .scoreboard-team th {
+    border-right: 1px solid silver;
+    padding: 5px;
+}
+.scoreboard-team td.score_cell {
+    min-width: 4.2em;
+    border-right: none;
+}
+.scoreboard-team a {
+    display: block;
+    padding: 2px 1px 2px 1px;
+    text-decoration: none;
+    color: black;
+}
+.scoreboard-team .scoretn {
+    padding: 0px 5px 0px;
+    text-align: right;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .forceWidth {
     position: relative;
     display: block;
@@ -201,7 +249,15 @@ img.affiliation-logo {
     border-bottom: 2px solid black;
     white-space: nowrap;
 }
+.scoreheader-team {
+    font-variant: small-caps;
+    border-bottom: 2px solid black;
+    white-space: nowrap;
+}
 .scoreheader th {
+    text-align: center;
+}
+.scoreheader-team th {
     text-align: center;
 }
 
@@ -222,6 +278,10 @@ img.affiliation-logo {
 .scorenc,.scorett,.scorepl { text-align: center; width: 2ex; }
 .scorenc { font-weight: bold; }
 td.scorenc { border-color: silver; border-right: 0; }
+
+.circle {
+   border-right: 0;
+}
 
 .scoreprob { width: 3.0em; vertical-align: middle; }
 .scoreaffil { text-align: center; }
@@ -392,4 +452,19 @@ h3.teamoverview {
 .error-template {
     padding: 40px 15px;
     text-align: center;
+}
+
+.validation {
+
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 )
+    url('http://i.stack.imgur.com/FhHRx.gif')
+    50% 50%
+    no-repeat;
 }

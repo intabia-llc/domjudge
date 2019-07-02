@@ -1,0 +1,289 @@
+{% if limitToTeams is not defined %}
+    {% set limitToTeams = null %}
+    {% set limitToTeamIds = null %}
+{% else %}
+    {% set limitToTeamIds = [] %}
+    {% for team in limitToTeams %}
+        {% set limitToTeamIds = limitToTeamIds | merge([team.teamid]) %}
+    {% endfor %}
+{% endif %}
+{% if showLegends is not defined %}
+    {% set showLegends = false %}
+{% endif %}
+{% if static is not defined %}
+    {% set static = false %}
+{% endif %}
+
+{% if maxWidth > 0 %}
+    <style>
+        .forceWidth {
+            max-width: {{ maxWidth }}px;
+        }
+    </style>
+{% endif %}
+
+<table class="scoreboard-team center {% if jury %}scoreboard_jury{% endif %}">
+
+    {# output table column groups (for the styles) #}
+    <colgroup>
+        <col id="scorerank"/>
+        {% if showFlags %}
+            <col id="scoreflags"/>
+        {% else %}
+            <col/>
+        {% endif %}
+        {% if showAffiliationLogos %}
+            <col id="scorelogos"/>
+        {% endif %}
+        <col id="scoreteamname"/>
+    </colgroup>
+    <colgroup>
+        <col id="scoresolv"/>
+        <col id="scoretotal"/>
+    </colgroup>
+    <colgroup>
+        {% if showTeamSubmissions or jury %}
+            {% for problem in scoreboard.problems %}
+                <col class="scoreprob"/>
+            {% endfor %}
+        {% endif %}
+    </colgroup>
+
+    {% set teamColspan = 2 %}
+    {% if showAffiliationLogos %}
+        {% set teamColspan = teamColspan + 1 %}
+    {% endif %}
+
+
+    <thead>
+
+    <tr class="scoreheader-team">
+
+
+        {% set previousSortOrder = -1 %}
+        {% set previousTeam = null %}
+        {% set backgroundColors = {"#FFFFFF": 1} %}
+        {% for score in scoreboard.scores if (limitToTeams is null or score.team.teamid in limitToTeamIds) %}
+            {% set classes = [] %}
+            {% if score.team.category.sortorder != previousSortOrder %}
+                {% if previousSortOrder != -1 %}
+                    {# Output summary of previous sort order #}
+                    {% include '@DOMJudge/partials/scoreboard_summary.html.twig' with {sortOrder: previousSortOrder} %}
+                {% endif %}
+                {% set classes = classes | merge(['sortorderswitch']) %}
+                {% set previousSortOrder = score.team.category.sortorder %}
+                {% set previousTeam = null %}
+            {% endif %}
+
+            {# check whether this is us, otherwise use category colour #}
+            {% if myTeamId is defined and myTeamId == score.team.teamid %}
+                {% set classes = classes | merge(['scorethisisme']) %}
+                {% set color = '#FFFF99' %}
+            {% else %}
+                {% set color = score.team.category.color %}
+            {% endif %}
+
+        {% endfor %}
+
+        {# Output summary of last sort order #}
+        {% include '@DOMJudge/partials/scoreboard_summary.html.twig' with {sortOrder: previousSortOrder} %}
+
+
+        <th title="circle / problem" colspan="2" scope="col">problem</th>
+        <th title="submit name" scope="col">submit</th>
+        <th title="submit name" scope="col">result</th>
+        <th title="# solved / penalty time" colspan="2" scope="col">score</th>
+
+    </thead>
+    <tbody>
+
+    {% if showTeamSubmissions or jury %}
+        {% for problem in scoreboard.problems %}
+            {% set link = null %}
+            {% set target = '_self' %}
+            {% if not static %}
+                {% if jury %}
+                    {% set link = path('jury_problem', {'probId': problem.probid}) %}
+                {% elseif problem.problem.hasProblemtext %}
+                    {% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java' }) %}
+                    {% set target = '_blank' %}
+                {% endif %}
+            {% endif %}
+            <tr>
+            <td class="scorenc" title="circle" scope="col">
+                {% if problem.color is not empty %}
+                    <a class="circle" style="background: {{ problem.color }};"></a>
+                {% endif %}
+            </td>
+            <td title="problem {{ problem.problem.name }}" scope="col">
+                <div class="row">
+                    {#<a {% if link %}href="{{ link }}"{% endif %} target="{{ target }}">#}
+                        {{ problem.shortname }}
+                        {% if scoreboard.showPoints %}
+                            <span class='problempoints'>
+                                [{% if problem.points == 1 %}1 point{% else %}{{ problem.points }} points{% endif %}]
+                            </span>
+                        {% endif %}
+                    {#</a>#}
+                </div>
+            </td>
+            <td>
+                <div class="text-center">
+                    <a class="btn btn-secondary" role="button"
+                       href="{{ path('code_editor', {'probId': problem.probid, 'langId': 'java' }) }}">
+                        Start solution
+                    </a>
+                </div>
+            </td>
+
+            {% for score in scoreboard.scores %}
+                {# CSS class for correct/incorrect/neutral results #}
+                {% set scoreCssClass = 'score_neutral' %}
+                {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
+                    {% set scoreCssClass = 'score_correct' %}
+                    {% if scoreboard.solvedFirst(score.team, problem) %}
+                        {% set scoreCssClass = scoreCssClass ~ ' score_first' %}
+                    {% endif %}
+                {% elseif showPending and scoreboard.matrix[score.team.teamid][problem.probid].numberOfPendingSubmissions > 0 %}
+                    {% set scoreCssClass = 'score_pending' %}
+                {% elseif scoreboard.matrix[score.team.teamid][problem.probid].numberOfSubmissions > 0 %}
+                    {% set scoreCssClass = 'score_incorrect' %}
+                {% endif %}
+
+                {% set numberOfSubmissions = scoreboard.matrix[score.team.teamid][problem.probid].numberOfSubmissions %}
+                {% if showPending and scoreboard.matrix[score.team.teamid][problem.probid].numberOfPendingSubmissions > 0 %}
+                    {% set numberOfSubmissions = numberOfSubmissions ~ ' + ' ~ scoreboard.matrix[score.team.teamid][problem.probid].numberOfPendingSubmissions %}
+                {% endif %}
+
+                {# If correct, print time scored. The format will vary depending on the scoreboard resolution setting #}
+                {% set time = '&nbsp;' %}
+                {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
+                    {% set time = scoreboard.matrix[score.team.teamid][problem.probid].time %}
+                    {% if scoreInSeconds %}
+                        {% set time = time | scoreTime | printTimeRelative %}
+                        {% if scoreboard.matrix[score.team.teamid][problem.probid].numberOfSubmissions > 1 %}
+                            {% set time = time ~ ' + ' ~ (calculatePenaltyTime(true, scoreboard.matrix[score.team.teamid][problem.probid].numberOfSubmissions) | printTimeRelative) %}
+                        {% endif %}
+                    {% else %}
+                        {% set time = time | scoreTime %}
+                    {% endif %}
+                {% endif %}
+
+                {% set link = null %}
+                {% if jury %}
+                    {% set restrict = {probid: problem.probid} %}
+                    {% set link = path('jury_team', {teamId: score.team.teamid, restrict: restrict}) %}
+                {% endif %}
+
+                <td>
+                    {% if numberOfSubmissions != '0' %}
+                        <a {% if link %}href="{{ link }}"{% endif %}>
+                            <div class="{{ scoreCssClass }}">
+                                {{ time | raw }}
+                                <span>
+                                    {% if numberOfSubmissions is same as(1) %}
+                                        1 try
+                                    {% else %}
+                                        {{ numberOfSubmissions }} tries
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </a>
+                    {% endif %}
+                </td>
+
+                {% set totalTime = score.totalTime %}
+                {% if scoreInSeconds %}
+                    {% set totalTime = totalTime | printTimeRelative %}
+                {% endif %}
+                {% set totalPoints = score.numberOfPoints %}
+                <td class="scorenc">{{ totalPoints }}</td>
+                <td class="score_cell">{{ totalTime }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    </tbody>
+</table>
+
+{% if showLegends %}
+    <p><br/><br/></p>
+
+    {# only print legend when there's more than one category #}
+    {% if limitToTeamIds is null and scoreboard.usedCategories(limitToTeamIds) | length > 1 %}
+        <table id="categ_legend" class="scoreboard scorelegend {% if jury %}scoreboard_jury{% endif %}">
+            <thead>
+            <tr>
+                <th scope="col">
+                    {% set link = null %}
+                    {% if jury %}
+                        {% set link = path('jury_team_categories') %}
+                    {% endif %}
+                    <a {% if link %}href="{{ link }}"{% endif %}>Categories</a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for category in scoreboard.categories if scoreboard.usedCategories()[category.categoryid] is defined %}
+                <tr {% if category.color %}style="background: {{ category.color }};"{% endif %}>
+                    <td>
+                        {% set link = null %}
+                        {% if jury %}
+                            {% set link = path('jury_team_category', {'categoryId': category.categoryid}) %}
+                        {% endif %}
+                        <a {% if link %}href="{{ link }}"{% endif %}>{{ category.name }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if showTeamSubmissions or jury %}
+        {% set cellColors = {first: 'Solved first', correct: 'Solved', incorrect: 'Tried, incorrect', pending: 'Tried, pending', neutral: 'Untried'} %}
+        <table id="cell_legend" class="scoreboard scorelegend {% if jury %}scoreboard_jury{% endif %}">
+            <thead>
+            <tr>
+                <th scope="col">Cell colours</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for color, description in cellColors %}
+                {% if color != 'pending' or showPending %}
+                    <tr class="score_{{ color }}">
+                        <td>{{ description }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endif %}
+
+<style>
+    {% for color,i in backgroundColors %}
+    {% set colorClass = color | replace({"#": "_"}) %}
+
+    .cl{{ colorClass }} {
+        background-color: {{ color }};
+    }
+
+    {% set cMin = color|hexColorToRGBA(0) %}
+    {% set cMax = color|hexColorToRGBA(1) %}
+
+    .cl{{ colorClass }} .forceWidth.toolong:after {
+        background: linear-gradient(to right,
+                {{ cMin }} 0%,
+                {{ cMax }} 96%);
+    }
+
+    {% endfor %}
+</style>
+<script>
+    document.querySelectorAll(".forceWidth:not(.toolong)").forEach(el => {
+        if (el instanceof Element && el.scrollWidth > el.offsetWidth) {
+            el.classList.add("toolong");
+        }
+    });
+</script>

@@ -19,7 +19,7 @@
         <div class="col" style="height: 100%">
 
             <h3 class="teamoverview">Problem text</h3>
-            <embed src="/team/problems/{{ data.problem.probid }}/text" class="col" style="height: 100%"
+            <embed src="/team/problems/{{ data.problem.probid }}/text" class="col" style="height: 1200px"
                    type="application/pdf">
 
         </div>
@@ -29,11 +29,16 @@
 
             <h3 class="teamoverview">Problem solution</h3>
 
-            <ul class="nav nav-tabs source-tab-nav">
+            <ul id="editorTitle" class="nav nav-tabs source-tab-nav">
 
                 <li class="nav-item">
-                    <a class="nav-link active" data-toggle="tab" role="tab">
+                    <a class="nav-link active" data-toggle="tab" role="tab" id="code" onclick="editorField()">
                         Code:
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" role="tab" id="example" onclick="editorField()">
+                        Example:
                     </a>
                 </li>
 
@@ -47,6 +52,16 @@
                     <script>
                         $(function () {
                             $('#form_source').closest('.form-group').hide();
+                        });
+                    </script>
+                </div>
+
+                <div class="tab-pane fade show active" id="source_example" role="tabpanel" hidden="hidden">
+                    {{ '123123' | codeEditor(2, 'java', false, 'form_source') }}
+
+                    <script>
+                        $(function () {
+                            $('#form_example').closest('.form-group').hide();
                         });
                     </script>
                 </div>
@@ -90,10 +105,150 @@
 
                 let selectWithLanguage = document.getElementById('form_language');
                 selectWithLanguage.addEventListener('change', (event) => {
+
+
                     let editor = ace.edit("editor1");
+                    let editor2 = ace.edit("editor2");
                     let language = getAceLanguage(selectWithLanguage.value);
-                    editor.getSession().setMode(`ace/mode/${language}`)
+
+                    editor.getSession().setMode(`ace/mode/${language}`);
+                    editor2.getSession().setMode(`ace/mode/${language}`);
+                    editor2.getSession().setValue(getExample(selectWithLanguage.value));
                 });
+
+            </script>
+
+            <div>
+                <button type="button" id="ajax_submit_btn" class="btn-primary btn" onclick="ajaxSubmitFunc()">Test</button>
+            </div>
+            <div id="details" style="margin-top: 15px"></div>
+            <script>
+                let intervalId = null;
+                function ajaxSubmitFunc() {
+
+                    console.log("ajaxSubmitFunc");
+
+                    let basePostUrl = "{{ path('code_submit_ajax', {'probId': data.problem.probid, 'langId': 'LANG_ID' }) }}";
+                    let selectedLang = $('#form_language').val();
+                    let postUrl = basePostUrl.replace('LANG_ID', selectedLang);
+
+                    let sourceText = $("#form_source").val();
+
+                    console.log("sourceText ", sourceText);
+
+                    $("#details").html("<div style=\"text-align: center;\">Solution validation</div>");
+
+                    $.post(postUrl, {source: sourceText}, function (response) {
+
+                        submitId = response.submitId;
+
+                        console.log('submitId'. submitId);
+                        if(submitId !== null) {
+                            intervalId = setInterval('refresh(submitId)', 5000);
+                        }
+
+                    }).fail(function (result) {
+                        console.log(JSON.stringify(result));
+                    });
+
+                }
+
+                function refresh(submitId) {
+
+                    let refreshPostUrl = "{{ path('details', {'submitId': 0 }) }}";
+                    let postUrl = refreshPostUrl.replace('0', submitId);
+
+                    $.post(postUrl, function (details) {
+                        console.log(details);
+                        let content = details.content;
+
+                        if(content !== null) {
+                            console.log(content);
+                            let baseContent = content.replace("<div class=\"progress\" style=\"margin-top:-9px; height: 10px;\" data-progress-bar>\n", "");
+
+                            $("#details").html("");
+
+                            $("#details").append("<div id=\"content\">" + baseContent + "</div>");
+
+                            if (intervalId !== null) {
+                                clearInterval(intervalId);
+                            }
+                        }
+                    }).fail(function (result) {
+                        console.log(JSON.stringify(result));
+                    });
+
+                }
+
+                function editorField() {
+                    let activeLi = document.getSelection().baseNode.textContent.trim();
+                    if ( activeLi === 'Example:' ) {
+                        console.log(activeLi);
+
+                        $("#source_code").attr('hidden', true);
+                        $("#source_example").attr('hidden', false);
+
+                        let editor = ace.edit("editor2");
+
+                        let selectWithLanguage = document.getElementById('form_language');
+                        let language = selectWithLanguage.value;
+
+                        console.log(selectWithLanguage.value);
+                        editor.getSession().setValue(getExample(language));
+
+                    } else {
+                        $("#source_example").attr('hidden', true);
+                        $("#source_code").attr('hidden', false);
+                    }
+
+                }
+
+                function getExample(language) {
+                    switch (language) {
+                        case 'c':
+                            return '#include <stdio.h>\n' +
+                                '\n' +
+                                'int main()\n' +
+                                '{\n' +
+                                '\tprintf(\"Hello world!\\n\");\n' +
+                                '\n' +
+                                '\treturn 0;\n' +
+                                '}';
+                        case 'cpp':
+                            return '#include <iostream>\n' +
+                                '#include <string>\n' +
+                                '\n' +
+                                'using namespace std;\n' +
+                                '\n' +
+                                'int main()\n' +
+                                '{\n' +
+                                '\tstring hello("Hello world!");\n' +
+                                '\tcout << hello << endl;\n' +
+                                '\treturn 0;\n' +
+                                '}';
+                        case 'java':
+                            return 'import java.io.*;\n' +
+                                '\n' +
+                                'class Main {\n' +
+                                '    public static void main(String[] args) throws Exception {\n' +
+                                '\t\tSystem.out.print("Hello world!\\n");\n' +
+                                '    }\n' +
+                                '}';
+                        case 'js':
+                            return 'console.log(\'Hello world!\');\n';
+                        case 'kt':
+                            return 'fun main(args : Array<String>) {\n' +
+                                '\tprintln("Hello world!");\n' +
+                                '}';
+                        case 'bash':
+                            return 'echo "Hello world!"\n' +
+                                '\n' +
+                                'exit 0';
+                        default:
+                            return '\n';
+                    }
+                }
+
             </script>
         </div>
     </div>
