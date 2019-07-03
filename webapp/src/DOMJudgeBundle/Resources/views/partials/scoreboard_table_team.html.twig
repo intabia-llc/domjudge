@@ -112,7 +112,7 @@
             <tr>
             <td class="scorenc" title="circle" scope="col">
                 {% if problem.color is not empty %}
-                    <a class="circle" style="background: {{ problem.color }};"></a>
+                    <a class="circle" style="background: {{ problem.color }}; border: 0px"></a>
                 {% endif %}
             </td>
             <td title="problem {{ problem.problem.name }}" scope="col">
@@ -157,11 +157,11 @@
                         <div class="text-center">
 
                             {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
-                            <a class="btn btn-secondary" role="button">
+                            <a class="btn btn-secondary" role="button" style="background-color: rgba(0,0,0,0.31); border: 0px; color: #fff;">
                                 Start solution
                             </a>
                     {% else %}
-                                <a class="btn btn-secondary" role="button"
+                                <a class="btn btn-secondary" role="button" style="background-color: #a93795; border: 0px; color: #fff;"
                                    href="{{ path('code_editor', {'probId': problem.probid, 'langId': 'java' }) }}">
 
                                 Start solution

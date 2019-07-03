@@ -1,3 +1,8 @@
+@font-face { font-family: "GothamProRegular"; src: url("fonts/GothamProRegular.ttf") format("truetype"); font-style: normal; font-weight: normal; }
+@font-face { font-family: "GothamProMedium"; src: url("fonts/GothamProMedium.ttf") format("truetype"); font-style: normal; font-weight: normal; }
+@font-face { font-family: "GothamProBold"; src: url("fonts/GothamProBold.ttf") format("truetype"); font-style: normal; font-weight: normal; }
+@font-face { font-family: "GothamProBlack"; src: url("fonts/GothamProBlack.ttf") format("truetype"); font-style: normal; font-weight: normal; }
+
 html,
 body {
   height: 100%;
@@ -15,7 +20,7 @@ body {
   justify-content: center;
   padding-top: 40px;
   padding-bottom: 40px;
-  background-color: #f5f5f5;
+  font-family: "GothamProRegular", sans-serif;
 }
 
 .form-signin {
@@ -23,6 +28,7 @@ body {
   max-width: 800px;
   padding: 15px;
   margin: 0 auto;
+
 }
 #loginform {
   text-align: center;
@@ -43,7 +49,7 @@ body {
    the main login method. */
 .main-login, .additional-logins {
   display: inline-block;
-  text-align: left;
+  text-align: center;
   vertical-align: top;
   min-height: 220px;
 }
@@ -67,3 +73,9 @@ div.vertical-line{
   height: 230px;
   display: inline-block;
 }
+
+.login-title {
+    font: 24px "GothamProBold", sans-serif;
+}
+
+

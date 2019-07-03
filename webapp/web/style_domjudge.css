@@ -1,7 +1,12 @@
+@font-face { font-family: "GothamProRegular"; src: url("fonts/GothamProRegular.ttf") format("truetype"); font-style: normal; font-weight: normal; }
+@font-face { font-family: "GothamProMedium"; src: url("fonts/GothamProMedium.ttf") format("truetype"); font-style: normal; font-weight: normal; }
+@font-face { font-family: "GothamProBold"; src: url("fonts/GothamProBold.ttf") format("truetype"); font-style: normal; font-weight: normal; }
+@font-face { font-family: "GothamProBlack"; src: url("fonts/GothamProBlack.ttf") format("truetype"); font-style: normal; font-weight: normal; }
+
 body {
     color: black;
     background-color: white;
-    font-family: Roboto, sans-serif;
+    font-family: "GothamProRegular", sans-serif !important;
     padding-bottom: 4em;
 }
 
@@ -144,11 +149,11 @@ del {
     display: block;
 }
 .scoreboard tr {
-    border-bottom: 1px solid black;
+    border-bottom: 3px solid black;
     height: 42px;
 }
 .scoreboard td, .scoreboard th {
-    border-right: 1px solid silver;
+
     padding: 0px;
 }
 .scoreboard td.score_cell {
@@ -192,11 +197,11 @@ del {
     display: block;
 }
 .scoreboard-team tr {
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid silver;
     height: 42px;
 }
 .scoreboard-team td, .scoreboard-team th {
-    border-right: 1px solid silver;
+
     padding: 5px;
 }
 .scoreboard-team td.score_cell {
@@ -246,7 +251,7 @@ img.affiliation-logo {
 
 .scoreheader {
     font-variant: small-caps;
-    border-bottom: 2px solid black;
+    border-bottom: 2px solid silver;
     white-space: nowrap;
 }
 .scoreheader-team {
@@ -269,10 +274,10 @@ img.affiliation-logo {
     padding-right: 3pt;
 }
 
-.score_correct   { background: #60e760; }
-.score_first     { background: #1daa1d !important; }
+.score_correct   { background: #60e760;  }
+.score_first     { background: rgba(0, 170, 9, 0.15) !important; border-radius: 5px }
 .score_pending   { background: #6666FF; }
-.score_incorrect { background: #e87272; }
+.score_incorrect { background: rgba(255, 2, 0, 0.15); border-radius: 5px}
 
 #scoresolv,#scoretotal { width: 2.5em; }
 .scorenc,.scorett,.scorepl { text-align: center; width: 2ex; }
@@ -415,13 +420,9 @@ tr.ignore td, td.ignore, span.ignore {
 }
 
 h3.teamoverview {
-    border-top: solid 1px darkgray;
-    border-bottom: solid 1px darkgray;
-    background-color: #c4d8ff;
-    margin-top: 2ex;
-    padding-left: 1ex;
-    font-size: 1.17em;
-    text-align: center;
+    margin-top: 4ex;
+    font-size: 1.4em;
+    text-align: left;
 }
 
 .ajax-loader-container {

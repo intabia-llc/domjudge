@@ -1,5 +1,5 @@
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand hidden-sm-down" href="{{ path('team_index') }}">DOMjudge</a>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" style="background-color: #2b2867 !important;">
+    <a class="navbar-brand hidden-sm-down" href="{{ path('team_index') }}"><img src="{{ asset('images/intabialogo.png') }}" alt="Intabia" width="75"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#menuDefault"
             aria-controls="menuDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -50,7 +50,7 @@
             {% endif %}
         </ul>
 
-        {% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}
+        {#{% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}#}
     </div>
 </nav>
 {% include '@DOMJudge/partials/scoreboard_progress_bar.html.twig' with {margin: -9, contest: current_team_contest} %}
