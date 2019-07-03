@@ -39,8 +39,6 @@
 
         {% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}
 
-        {% include '@DOMJudge/partials/menu_login_logout_button.html.twig' with {confirmLogout: true} %}
-
         <ul class="navbar-nav">
             <li class="ajax-loader-container">
                 <div class="spinner-border spinner-border-sm ajax-loader" style="display: none;" role="status">
@@ -51,6 +49,8 @@
                 {% include '@DOMJudge/partials/menu_change_contest.html.twig' with {contest: current_team_contest, contests: current_team_contests, change_path: 'team_change_contest', show_no_contest: false} %}
             {% endif %}
         </ul>
+
+        {% include '@DOMJudge/partials/menu_login_logout_button.html.twig' with {confirmLogout: true} %}
 
     </div>
 </nav>
