@@ -384,7 +384,8 @@ class SubmissionController extends BaseController
                 }
             ])
             ->setAction($this->generateUrl('team_index'))
-            ->add('submit code', SubmitType::class, ['label' => 'Home']);
+            ->add('submit code', SubmitType::class, ['label' => 'Home',
+                'attr' => [ 'style' => 'background-color: #a93795; border: 0px; color: #fff;']]);
 
         $form = $formBuilder
             ->setAction($this->generateUrl('code_editor', ['probId' => $probId,

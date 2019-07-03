@@ -249,6 +249,11 @@ img.affiliation-logo {
     width: 32px;
 }
 
+img.champion-logo {
+    height: 300px;
+    width: 300px;
+}
+
 .scoreheader {
     font-variant: small-caps;
     border-bottom: 2px solid silver;

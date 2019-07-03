@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" style="background-color: #2b2867 !important;">
-    <a class="navbar-brand hidden-sm-down" href="{{ path('team_index') }}"><img src="{{ asset('images/intabialogo.png') }}" alt="Intabia" width="75"></a>
+    <a class="navbar-brand hidden-sm-down" href="{{ path('team_index') }}"><img src="{{ asset('images/incode.png') }}" alt="Intabia" width="75" style="margin-bottom: 8px;"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#menuDefault"
             aria-controls="menuDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -13,7 +13,7 @@
                 <a class="nav-link" href="{{ path('team_index') }}"><i class="fas fa-home"></i> Home</a>
             </li>
             <li class="nav-item {% if current_route == 'team_problems' %}active{% endif %}">
-                {% if is_granted('ROLE_JURY') or current_team_contest.freezeData.started %}
+                {% if is_granted('ROLE_JURY') or (current_team_contest != null and current_team_contest.freezeData.started) %}
                     <a class="nav-link" href="{{ path('team_problems') }}">
                         <i class="fas fa-book-open"></i> Problemset
                     </a>
@@ -37,6 +37,8 @@
             {% endif %}
         </ul>
 
+        {% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}
+
         {% include '@DOMJudge/partials/menu_login_logout_button.html.twig' with {confirmLogout: true} %}
 
         <ul class="navbar-nav">
@@ -50,7 +52,6 @@
             {% endif %}
         </ul>
 
-        {#{% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}#}
     </div>
 </nav>
 {% include '@DOMJudge/partials/scoreboard_progress_bar.html.twig' with {margin: -9, contest: current_team_contest} %}
