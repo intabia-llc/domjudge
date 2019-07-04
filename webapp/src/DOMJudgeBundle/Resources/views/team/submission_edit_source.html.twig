@@ -144,7 +144,7 @@
 
                         console.log('submitId'. submitId);
                         if(submitId !== null) {
-                            intervalId = setInterval('refresh(submitId)', 5000);
+                            intervalId = setInterval('refresh(submitId)', 1000);
                         }
 
                     }).fail(function (result) {
@@ -175,9 +175,6 @@
                                 $("#ajax_submit_btn").attr("disabled","true")
                             }
 
-                            if (intervalId !== null) {
-                                clearInterval(intervalId);
-                            }
                         }
                     }).fail(function (result) {
                         console.log(JSON.stringify(result));
