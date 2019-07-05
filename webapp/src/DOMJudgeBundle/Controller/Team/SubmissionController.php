@@ -327,7 +327,12 @@ class SubmissionController extends BaseController
 
             $fileSystem = new Filesystem();
             $fileSystem->mkdir($tmpdir);
-            $filename = 'code.java';
+            error_log('LANG = '. $language->getName());
+            if ($language->getName() === 'JavaScript') {
+                $filename = 'code.js';
+            } else {
+                $filename = 'code.java';
+            }
             $tmpfname = $tmpdir . '/' . $filename;
             $fileSystem->touch($tmpfname);
             file_put_contents($tmpfname, $source);
@@ -383,9 +388,7 @@ class SubmissionController extends BaseController
                         ->orderBy('lang.name');
                 }
             ])
-            ->setAction($this->generateUrl('team_index'))
-            ->add('submit code', SubmitType::class, ['label' => 'Home',
-                'attr' => [ 'style' => 'background-color: #a93795; border: 0px; color: #fff;']]);
+            ->setAction($this->generateUrl('team_index'));
 
         $form = $formBuilder
             ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
@@ -398,9 +401,6 @@ class SubmissionController extends BaseController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            return $this->redirectToRoute('team_index');
-        }
         if ($request->isXmlHttpRequest()) {
             return $this->render('@DOMJudge/team/submit_modal.html.twig', $data);
         } else {

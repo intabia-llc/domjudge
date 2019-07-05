@@ -70,6 +70,8 @@
             <div class="row" style="padding-top: 15px">
                 <div class="col-lg-4">
                     {{ form_widget(form) }}
+                    <button type="button" id="back_btn" class="btn-primary btn" style="background-color: #2b2867; border: 0px; color: #fff;" onclick="back()">Back</button>
+                        <button type="button" id="ajax_submit_btn" class="btn-primary btn" style="background-color: #a93795; border: 0px; color: #fff;" onclick="ajaxSubmitFunc()">Verify & Submit</button>
                 </div>
             </div>
             <script>
@@ -104,7 +106,6 @@
                 let selectWithLanguage = document.getElementById('form_language');
                 selectWithLanguage.addEventListener('change', (event) => {
 
-
                     let editor = ace.edit("editor1");
                     let editor2 = ace.edit("editor2");
                     let language = getAceLanguage(selectWithLanguage.value);
@@ -116,11 +117,11 @@
 
             </script>
 
-            <div>
-                <button type="button" id="ajax_submit_btn" class="btn-primary btn" style="background-color: #a93795; border: 0px; color: #fff;" onclick="ajaxSubmitFunc()">Verify & Submit</button>
-            </div>
             <div id="details" style="margin-top: 15px"></div>
             <script>
+                function back() {
+                    location.href = "{{ path('team_index') }}";
+                }
                 let intervalId = null;
                 function ajaxSubmitFunc() {
 
