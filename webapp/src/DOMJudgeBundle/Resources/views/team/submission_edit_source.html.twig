@@ -133,8 +133,6 @@
 
                     let sourceText = $("#form_source").val();
 
-                    console.log("sourceText ", sourceText);
-
                     $("#details").html("<div style=\"text-align: center;\">Solution validation</div>");
 
                     $.post(postUrl, {source: sourceText}, function (response) {
@@ -163,7 +161,7 @@
 
                         let result = details.result;
                         if(content !== null) {
-                            console.log(content);
+                            // console.log(content);
                             let baseContent = content.replace("<div class=\"progress\" style=\"margin-top:-9px; height: 10px;\" data-progress-bar>\n", "");
 
                             $("#details").html("");
@@ -194,7 +192,7 @@
                         let selectWithLanguage = document.getElementById('form_language');
                         let language = selectWithLanguage.value;
 
-                        console.log(selectWithLanguage.value);
+                        // console.log(selectWithLanguage.value);
                         editor.getSession().setValue(getExample(language));
 
                     } else {

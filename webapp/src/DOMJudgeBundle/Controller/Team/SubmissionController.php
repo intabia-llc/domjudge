@@ -16,6 +16,7 @@ use DOMJudgeBundle\Entity\SubmissionFileWithSourceCode;
 use DOMJudgeBundle\Entity\Testcase;
 use DOMJudgeBundle\Form\Type\SubmitProblemType;
 use DOMJudgeBundle\Service\DOMJudgeService;
+use DOMJudgeBundle\Service\NotificationService;
 use DOMJudgeBundle\Service\SubmissionService;
 use FOS\RestBundle\View\View;
 use phpDocumentor\Reflection\Types\This;
@@ -75,17 +76,32 @@ class SubmissionController extends BaseController
      */
     protected $formFactory;
 
+    /**
+     * @var NotificationService
+     */
+    protected $notificationService;
+
+    /**
+     * SubmissionController constructor.
+     * @param EntityManagerInterface $em
+     * @param SubmissionService $submissionService
+     * @param DOMJudgeService $dj
+     * @param FormFactoryInterface $formFactory
+     * @param NotificationService $notificationService
+     */
     public function __construct(
         EntityManagerInterface $em,
         SubmissionService $submissionService,
         DOMJudgeService $dj,
-        FormFactoryInterface $formFactory
+        FormFactoryInterface $formFactory,
+        NotificationService $notificationService
     )
     {
         $this->em = $em;
         $this->submissionService = $submissionService;
         $this->dj = $dj;
         $this->formFactory = $formFactory;
+        $this->notificationService = $notificationService;
     }
 
     /**

@@ -337,6 +337,21 @@ CREATE TABLE `language` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Programming languages in which teams can submit solutions';
 
 --
+-- Table structure for table `notification`
+--
+CREATE TABLE `notification` (
+  `notid` int(4) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique ID',
+  `userid` int(4) unsigned COMMENT 'User who performed this action',
+  `cid` int(4) unsigned COMMENT 'Contest ID',
+  `template` varchar(64) NOT NULL COMMENT 'Template message',
+  PRIMARY KEY (`notid`),
+  KEY `cid` (`cid`),
+  KEY `userid` (`userid`),
+  CONSTRAINT `notification_ibfk_1` FOREIGN KEY (`cid`) REFERENCES `contest` (`cid`) ON DELETE SET NULL,
+  CONSTRAINT `notification_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `user` (`userid`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Log of all actions performed';
+
+--
 -- Table structure for table `problem`
 --
 

@@ -6,11 +6,15 @@ use Doctrine\ORM\EntityManagerInterface;
 use DOMJudgeBundle\Controller\BaseController;
 use DOMJudgeBundle\Entity\Clarification;
 use DOMJudgeBundle\Entity\Language;
+use DOMJudgeBundle\Entity\Notification;
 use DOMJudgeBundle\Form\Type\PrintType;
 use DOMJudgeBundle\Service\DOMJudgeService;
+use DOMJudgeBundle\Service\NotificationService;
 use DOMJudgeBundle\Service\ScoreboardService;
 use DOMJudgeBundle\Service\SubmissionService;
 use DOMJudgeBundle\Utils\Printing;
+use phpDocumentor\Reflection\Types\This;
+use phpDocumentor\Reflection\Types\Integer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -51,22 +55,31 @@ class MiscController extends BaseController
     protected $submissionService;
 
     /**
+     * @var NotificationService
+     */
+    protected $notificationService;
+
+
+    /**
      * MiscController constructor.
-     * @param DOMJudgeService        $dj
+     * @param DOMJudgeService $dj
      * @param EntityManagerInterface $em
-     * @param ScoreboardService      $scoreboardService
-     * @param SubmissionService      $submissionService
+     * @param ScoreboardService $scoreboardService
+     * @param SubmissionService $submissionService
+     * @param NotificationService $notificationService
      */
     public function __construct(
         DOMJudgeService $dj,
         EntityManagerInterface $em,
         ScoreboardService $scoreboardService,
-        SubmissionService $submissionService
+        SubmissionService $submissionService,
+        NotificationService $notificationService
     ) {
-        $this->dj                = $dj;
-        $this->em                = $em;
-        $this->scoreboardService = $scoreboardService;
-        $this->submissionService = $submissionService;
+        $this->dj                  = $dj;
+        $this->em                  = $em;
+        $this->scoreboardService   = $scoreboardService;
+        $this->submissionService   = $submissionService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -93,8 +106,10 @@ class MiscController extends BaseController
             ],
             'maxWidth' => $this->dj->dbconfig_get('team_column_width', 0),
         ];
+        $scoreboard = null;
         if ($contest) {
-            $data['scoreboard']           = $this->scoreboardService->getTeamScoreboard($contest, $teamId, true);
+            $scoreboard = $this->scoreboardService->getTeamScoreboard($contest, $teamId, true);
+            $data['scoreboard']           = $scoreboard;
             $data['showFlags']            = $this->dj->dbconfig_get('show_flags', true);
             $data['showAffiliationLogos'] = $this->dj->dbconfig_get('show_affiliation_logos', false);
             $data['showAffiliations']     = $this->dj->dbconfig_get('show_affiliations', true);
@@ -146,6 +161,42 @@ class MiscController extends BaseController
             $data['clarificationRequests'] = $clarificationRequests;
             $data['categories']            = $this->dj->dbconfig_get('clar_categories');
         }
+//
+//        /** @var Notification[] $notification */
+//        $notification = $this->em->createQueryBuilder()
+//            ->from('DOMJudgeBundle:Notification', 'n')
+//            ->select('n')
+//            ->andWhere('n.userid = :userid')
+//            ->andWhere('n.cid = :cid')
+//            ->setParameter(':userid', $user->getUserid())
+//            ->setParameter(':cid', $contest->getCid())
+//            ->addOrderBy('n.cid', 'DESC')
+//            ->getQuery()
+//            ->getResult();
+//
+//        error_log("NOTIFICATION" . empty($notification) );
+//
+//        if(empty($notification) && $scoreboard !== null) {
+//            error_log("NOTIFICATION IS NOT EMPTY" );
+//
+//            $count = 0;
+//            $probCount = 0;
+//            foreach ($scoreboard->getScores() as $score) {
+//                foreach ($scoreboard->getProblems() as $problem) {
+//                    $probCount = $probCount + 1;
+//                    if ($scoreboard->getMatrix()[$score->getTeam()->getTeamid()][$problem->getProbid()]) {
+//                        $count = $count + 1;
+//                    }
+//                }
+//            }
+//
+//            if ($count === $probCount) {
+//                $this->notificationService->sendMessage($user, 'Поздравление',
+//                    $this->renderView('@DOMJudge/jury/final_message.html.twig', ['name' => $user->getUsername()]),
+//                    $contest->getCid());
+//            }
+//        }
+
 
         if ($request->isXmlHttpRequest()) {
             $data['ajax'] = true;

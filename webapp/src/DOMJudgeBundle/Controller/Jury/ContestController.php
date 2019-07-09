@@ -8,12 +8,15 @@ use DOMJudgeBundle\Controller\BaseController;
 use DOMJudgeBundle\Entity\Contest;
 use DOMJudgeBundle\Entity\ContestProblem;
 use DOMJudgeBundle\Entity\RemovedInterval;
+use DOMJudgeBundle\Entity\User;
 use DOMJudgeBundle\Form\Type\ContestType;
 use DOMJudgeBundle\Form\Type\FinalizeContestType;
 use DOMJudgeBundle\Form\Type\RemovedIntervalType;
 use DOMJudgeBundle\Service\DOMJudgeService;
 use DOMJudgeBundle\Service\EventLogService;
+use DOMJudgeBundle\Service\NotificationService;
 use DOMJudgeBundle\Utils\Utils;
+use phpDocumentor\Reflection\DocBlock\Tags\Uses;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -45,19 +48,27 @@ class ContestController extends BaseController
     protected $eventLogService;
 
     /**
+     * @var NotificationService
+     */
+    protected $notificationService;
+
+    /**
      * TeamCategoryController constructor.
      * @param EntityManagerInterface $em
-     * @param DOMJudgeService        $dj
-     * @param EventLogService        $eventLogService
+     * @param DOMJudgeService $dj
+     * @param EventLogService $eventLogService
+     * @param NotificationService $notificationService
      */
     public function __construct(
         EntityManagerInterface $em,
         DOMJudgeService $dj,
-        EventLogService $eventLogService
+        EventLogService $eventLogService,
+        NotificationService $notificationService
     ) {
-        $this->em              = $em;
-        $this->dj              = $dj;
-        $this->eventLogService = $eventLogService;
+        $this->em                  = $em;
+        $this->dj                  = $dj;
+        $this->eventLogService     = $eventLogService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -523,6 +534,25 @@ class ContestController extends BaseController
         return $this->render('@DOMJudge/jury/contest_add.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/notify/{cid}", name="notify", requirements={"cid": "\d+"})
+     * @param int $cid
+     * @param Request $request
+     */
+    public function notifyAllUsers(int $cid, Request $request) {
+
+        /** @var User[] $users */
+        $users = $this->em->getRepository(User::class)->findAll();
+
+        foreach($users as $user) {
+            if ($user->getUserid() != 1 && $user->getUserid()!= 2) {
+                $this->notificationService->sendMessage($user, 'Тренинг',
+                    $this->renderView('@DOMJudge/jury/training_message.html.twig',
+                        ['name' => $user->getUsername()]), $cid);
+            }
+        }
     }
 
     /**

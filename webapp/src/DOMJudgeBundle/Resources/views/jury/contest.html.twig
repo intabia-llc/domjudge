@@ -141,7 +141,16 @@
             {{ button(path('jury_contest_finalize', {'contestId': contest.cid}), 'Finalize this contest', 'secondary', 'lock') }}
         {% endif %}
         {% include '@DOMJudge/jury/partials/rejudge_form.html.twig' with {table: 'contest', id: contest.cid, buttonClass: 'btn-secondary'} %}
+        <button type="button" onclick="notify()">Notify</button>
     </p>
+
+    <script>
+        function notify() {
+            let url = "{{ path('notify', {'cid': contest.cid}) }}";
+            $.post(url, function (details) {console.log(details)});
+        }
+    </script>
+
 
     {% if allowRemovedIntervals %}
         <h2>Removed intervals</h2>
