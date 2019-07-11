@@ -2,12 +2,14 @@
 
 namespace DOMJudgeBundle\Controller\Jury;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use DOMJudgeBundle\Controller\BaseController;
 use DOMJudgeBundle\Entity\Contest;
 use DOMJudgeBundle\Entity\ContestProblem;
 use DOMJudgeBundle\Entity\RemovedInterval;
+use DOMJudgeBundle\Entity\Team;
 use DOMJudgeBundle\Entity\User;
 use DOMJudgeBundle\Form\Type\ContestType;
 use DOMJudgeBundle\Form\Type\FinalizeContestType;
@@ -543,14 +545,22 @@ class ContestController extends BaseController
      */
     public function notifyAllUsers(int $cid, Request $request) {
 
-        /** @var User[] $users */
-        $users = $this->em->getRepository(User::class)->findAll();
+        /** @var Contest $contest */
+        $contest = $this->em->getRepository(Contest::class)->find($cid);
 
-        foreach($users as $user) {
-            if ($user->getUserid() != 1 && $user->getUserid()!= 2) {
-                $this->notificationService->sendMessage($user, 'Тренинг',
+        /** @var Team[] $teams */
+        $teams = $contest->getTeams();
+
+        if ($contest->getTeams()->isEmpty()) {
+            $teams = $this->em->getRepository(Team::class)->findAll();
+        }
+
+        foreach($teams as /** @var Team $team */ $team) {
+            if($team->getTeamid() !== 1 && $team->getTeamid() !== 2) {
+                error_log("TEAM = " . $team->getName());
+                $this->notificationService->sendMessage($team->getName(), 'Тренинг',
                     $this->renderView('@DOMJudge/jury/training_message.html.twig',
-                        ['name' => $user->getUsername()]), $cid);
+                        ['name' => $team->getName()]), $cid);
             }
         }
     }

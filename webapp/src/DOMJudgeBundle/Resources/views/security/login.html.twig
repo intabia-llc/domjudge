@@ -1,6 +1,6 @@
 {% extends "@DOMJudge/base.html.twig" %}
 
-{% block title %}DOMjudge Login{% endblock %}
+{% block title %}incode login{% endblock %}
 
 {% block extrahead %}
     <link rel="stylesheet" href="{{ asset('style_login.css') }}">
@@ -15,7 +15,7 @@
     {% set showregular = not hasaltmethods or error %}
 
     <div class="form-signin" id="loginform">
-        <img class="mb-4" src="{{ asset('images/incodelogo.png') }}" alt="Intabia" width="150">
+        <img class="mb-4" src="{{ asset('images/incodelogonew.png') }}" alt="Intabia" width="150">
         {% include '@DOMJudge/partials/messages.html.twig' %}
         {% if app.user is not null %}
             {% set message = 'You are currently automatically logged in as ' ~ app.user.username ~ '.<br />Use the form below to change login.' %}
