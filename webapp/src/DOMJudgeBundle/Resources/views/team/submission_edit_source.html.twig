@@ -207,11 +207,16 @@
                         case 'c':
                             return '#include <stdio.h>\n' +
                                 '\n' +
-                                'int main()\n' +
-                                '{\n' +
-                                '\tprintf(\"Hello world!\\n\");\n' +
+                                'int main() {\n' +
+                                '\tint i, ntests;\n' +
+                                '\tchar name[100];\n' +
                                 '\n' +
-                                '\treturn 0;\n' +
+                                '\tscanf("%d\\n", &ntests);\n' +
+                                '\n' +
+                                '\tfor (i = 0; i < ntests; i++) {\n' +
+                                '\t\tscanf("%s\\n", name);\n' +
+                                '\t\tprintf("Hello %s!\\n", name);\n' +
+                                '\t}\n' +
                                 '}';
                         case 'cpp':
                             return '#include <iostream>\n' +
@@ -219,26 +224,42 @@
                                 '\n' +
                                 'using namespace std;\n' +
                                 '\n' +
-                                'int main()\n' +
-                                '{\n' +
-                                '\tstring hello("Hello world!");\n' +
-                                '\tcout << hello << endl;\n' +
-                                '\treturn 0;\n' +
+                                'int main() {\n' +
+                                '\tint ntests;\n' +
+                                '\tstring name;\n' +
+                                '\n' +
+                                '\tcin >> ntests;\n' +
+                                '\tfor (int i = 0; i < ntests; i++) {\n' +
+                                '\t\tcin >> name;\n' +
+                                '\t\tcout << "Hello " << name << "!" << endl;\n' +
+                                '\t}\n' +
                                 '}';
                         case 'java':
-                            return 'import java.io.*;\n' +
+                            return 'import java.util.*;\n' +
                                 '\n' +
                                 'class Main {\n' +
-                                '    public static void main(String[] args) throws Exception {\n' +
-                                '\t\tSystem.out.print("Hello world!\\n");\n' +
-                                '    }\n' +
-                                '}';
+                                '\tpublic static void main(String[] args) {\n' +
+                                '\t\tScanner scanner = new Scanner(System.in);\n' +
+                                '\t\tint nTests = scanner.nextInt();\n' +
+                                '\n' +
+                                '\t\tfor (int i = 0; i < nTests; i++) {\n' +
+                                '\t\t\tString name = scanner.next();\n' +
+                                '\t\t\tSystem.out.println("Hello " + name + "!");\n' +
+                                '\t\t}\n' +
+                                '\t}\n' +
+                                '}\n';
                         case 'js':
                             return 'console.log(\'Hello world!\');\n';
                         case 'kt':
-                            return 'fun main(args : Array<String>) {\n' +
-                                '\tprintln("Hello world!");\n' +
-                                '}';
+                            return 'import java.util.*\n' +
+                                '\n' +
+                                'fun main(args: Array<String>) {\n' +
+                                '    var scanner = Scanner(System.`in`)\n' +
+                                '    val nTests = scanner.nextInt()\n' +
+                                '    for (i in 1..nTests) {\n' +
+                                '\t    System.`out`.format("Hello %s!%n", scanner.next())\n' +
+                                '    }\n' +
+                                '}\n';
                         case 'bash':
                             return 'echo "Hello world!"\n' +
                                 '\n' +
