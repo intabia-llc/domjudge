@@ -233,7 +233,7 @@ class SubmissionController extends BaseController
         if ($judging->getResult() === 'correct') {
             $correct = true;
         }
-        return $this->json(["content" => $this->render('@DOMJudge/team/submission.html.twig', $data)->getContent(),
+        return $this->json(["content" => $this->render('@DOMJudge/team/submission_team.html.twig', $data)->getContent(),
             "result" => $correct]);
 
     }
@@ -355,14 +355,15 @@ class SubmissionController extends BaseController
             $files[] = new UploadedFile($tmpfname, $filename, null, null, null, true);
 
             $entryPoint = null;
-            if ($language->getRequireEntryPoint()) {
-                $entryPoint = $language->getCompileScript();
+            if ($language->getRequireEntryPoint() && $language->getName() === 'JavaScript') {
+                $entryPoint = "__auto__";
             }
             $submission = $this->submissionService->submitSolution($team, $problem->getProbid(), $contest,
                 $language, $files, null, $entryPoint, null, null,
                 $message);
         }
 
+        error_log("SUBMIT ID = " .$submission->getSubmitid());
         return $this->json(['submitId' => $submission->getSubmitid()]);
 
     }

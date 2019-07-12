@@ -403,7 +403,7 @@ class SubmissionService
             return null;
         }
 
-        if ($this->dj->checkrole('jury') && $entryPoint == '__auto__') {
+        if ($entryPoint == '__auto__') {
             // Fall back to auto detection when we're importing jury submissions.
             $entryPoint = null;
         }

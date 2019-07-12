@@ -162,7 +162,10 @@
                         let result = details.result;
                         if(content !== null) {
                             // console.log(content);
-                            let baseContent = content.replace("<div class=\"progress\" style=\"margin-top:-9px; height: 10px;\" data-progress-bar>\n", "");
+                            let baseContent = content.replace("<div class=\"progress\" style=\"margin-top:-9px; height: 10px; \" data-progress-bar>\n" +
+                                "        <div class=\"progress-bar\" role=\"progressbar\" style=\"width: 0%; background-color: #a93795\"\n" +
+                                "             aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>\n" +
+                                "    </div>", "");
 
                             $("#details").html("");
 
@@ -238,15 +241,20 @@
                             return 'import java.util.*;\n' +
                                 '\n' +
                                 'class Main {\n' +
-                                '\tpublic static void main(String[] args) {\n' +
-                                '\t\tScanner scanner = new Scanner(System.in);\n' +
-                                '\t\tint nTests = scanner.nextInt();\n' +
                                 '\n' +
-                                '\t\tfor (int i = 0; i < nTests; i++) {\n' +
-                                '\t\t\tString name = scanner.next();\n' +
-                                '\t\t\tSystem.out.println("Hello " + name + "!");\n' +
-                                '\t\t}\n' +
-                                '\t}\n' +
+                                '    /**\n' +
+                                '     * Example Java app for calculating sum of two integers\n' +
+                                '     */\n' +
+                                '    public static void main(String[] args) {\n' +
+                                '        //Get input arguments\n' +
+                                '        Scanner scanner = new Scanner(System.in);\n' +
+                                '\n' +
+                                '        int firstInputArgument = scanner.nextInt();\n' +
+                                '        int secondInputArgument = scanner.nextInt();\n' +
+                                '\n' +
+                                '        //return result as output\n' +
+                                '        System.out.println(firstInputArgument + secondInputArgument);\n' +
+                                '    }\n' +
                                 '}\n';
                         case 'js':
                             return 'var readline = require(\'readline\');\n' +
