@@ -249,7 +249,18 @@
                                 '\t}\n' +
                                 '}\n';
                         case 'js':
-                            return 'console.log(\'Hello world!\');\n';
+                            return 'var readline = require(\'readline\');\n' +
+                                'var rl = readline.createInterface({\n' +
+                                '    input: process.stdin, \n' +
+                                '    output: process.stdout, \n' +
+                                '    terminal: false\n' +
+                                '});\n' +
+                                '    \n' +
+                                'rl.on(\'line\', function(line){\n' +
+                                '    if(isNaN(line)) {\n' +
+                                '        console.log("Hello " + line + "!");\n' +
+                                '    }\n' +
+                                '})';
                         case 'kt':
                             return 'import java.util.*\n' +
                                 '\n' +
@@ -260,10 +271,6 @@
                                 '\t    System.`out`.format("Hello %s!%n", scanner.next())\n' +
                                 '    }\n' +
                                 '}\n';
-                        case 'bash':
-                            return 'echo "Hello world!"\n' +
-                                '\n' +
-                                'exit 0';
                         default:
                             return '\n';
                     }
