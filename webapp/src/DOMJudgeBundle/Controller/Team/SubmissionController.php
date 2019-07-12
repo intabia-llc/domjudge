@@ -353,8 +353,13 @@ class SubmissionController extends BaseController
             $fileSystem->touch($tmpfname);
             file_put_contents($tmpfname, $source);
             $files[] = new UploadedFile($tmpfname, $filename, null, null, null, true);
+
+            $entryPoint = null;
+            if ($language->getRequireEntryPoint()) {
+                $entryPoint = $language->getCompileScript();
+            }
             $submission = $this->submissionService->submitSolution($team, $problem->getProbid(), $contest,
-                $language, $files, null, null, null, null,
+                $language, $files, null, $entryPoint, null, null,
                 $message);
         }
 
