@@ -159,7 +159,7 @@ abstract class AbstractRestController extends FOSRestController
                 'c.deactivatetime is null',
                 $qb->expr()->gt('c.deactivatetime', $now)
             ))
-            ->orderBy('c.activatetime');
+            ->orderBy('c.activatetime', 'DESC');
 
         // Filter on contests this user has access to
         if (!$this->dj->checkrole('api_reader') && !$this->dj->checkrole('judgehost')) {

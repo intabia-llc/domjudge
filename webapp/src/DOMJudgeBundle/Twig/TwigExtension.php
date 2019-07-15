@@ -761,7 +761,7 @@ JS;
         }
         if ($this->printtime(Utils::now(), '%Y%m%d') == $this->printtime($contest->getStarttime(), '%Y%m%d')) {
             // Today
-            $res .= "at " . $this->printtime($contest->getStarttime());
+            $res .= "at " . substr($contest->getStarttimeString(), 11, 5);
         } else {
             // Print full date
             $res .= "on " . $this->printtime($contest->getStarttime(), '%a %d %b %Y %T %Z');

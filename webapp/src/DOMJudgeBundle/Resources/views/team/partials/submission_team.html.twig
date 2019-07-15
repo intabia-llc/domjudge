@@ -9,6 +9,19 @@
         {% endif %}
 
         <div class="d-flex flex-row">
+            {% if judging.result == 'compiler-error' %}
+                <p style="color: red">Result</p>
+            {% elseif judging.result == 'run-error' %}
+            <p style="color: orangered">Result</p>
+            {% elseif judging.result == 'wrong-answer' %}
+            <p style="color: yellow">Result</p>
+            {% elseif judging.result == 'no-output' %}
+            <p style="color: yellow">Result</p>
+            {% elseif judging.result == 'correct' %}
+            <p style="color: green">Result</p>
+            {% endif %}
+        </div>
+        <div class="d-flex flex-row">
             <div class="p-2">
                 Time of submitted:
                 <b>{{ judging.submission.submittime | printtime(null, current_team_contest) }}</b>
@@ -17,6 +30,8 @@
                 Language:
                 <b>{{ judging.submission.language.name }}</b>
             </div>
+        </div>
+        <div class="d-flex flex-row">
             <div class="p-2">
                 Compilation:
                 {% if judging.result == 'compiler-error' %}
@@ -27,11 +42,27 @@
             </div>
 
             {% if judging.result != 'compiler-error' %}
-                <div class="d-flex flex-row">
-                    <div class="p-2">
-                        Run result: {{ judging.result | printResult }}
-                    </div>
+                <div class="p-2">
+                    Run-time:
+                    {% if judging.result == 'run-error' %}
+                        <span class="badge badge-danger">failed</span>
+                    {% else %}
+                        <span class="badge badge-success">successful</span>
+                    {% endif %}
                 </div>
+
+                {% if judging.result != 'run-error' %}
+                    <div class="p-2">
+                        Validate result:
+                        {% if judging.result == 'wrong-answer'%}
+                            <span class="badge badge-danger">failed</span>
+                        {% elseif judging.result == 'no-output'%}
+                            <span class="badge badge-danger">failed</span>
+                        {% else %}
+                            <span class="badge badge-success">successful</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
 

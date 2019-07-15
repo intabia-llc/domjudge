@@ -542,6 +542,7 @@ class ContestController extends BaseController
      * @Route("/notify/{cid}", name="notify", requirements={"cid": "\d+"})
      * @param int $cid
      * @param Request $request
+     * @throws \Exception
      */
     public function notifyAllUsers(int $cid, Request $request) {
 
@@ -560,7 +561,11 @@ class ContestController extends BaseController
                 error_log("TEAM = " . $team->getName());
                 $this->notificationService->sendMessage($team->getName(), 'Тренинг',
                     $this->renderView('@DOMJudge/jury/training_message.html.twig',
-                        ['name' => $team->getName()]), $cid);
+                        ['name' => $team->getName(), 'cid' => $cid, 'contestname' => $contest->getShortname(),
+                            'start' => substr($contest->getStarttimeString(), 11, 5) .
+                                $contest->getStartTimeObject()->format(' d.m.Y'),
+                            'end' => substr($contest->getEndtimeString(), 11, 5) .
+                                $contest->getEndTimeObject()->format(' d.m.Y')]), $cid);
             }
         }
     }

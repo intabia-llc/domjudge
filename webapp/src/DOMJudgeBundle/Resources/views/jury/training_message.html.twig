@@ -1,9 +1,20 @@
 <h3>Привет, {{ name }}!</h3>
 
 <div>
-    Рады сообщить, что появился новый тренинг.
+    Рады сообщить, что появился новый тренинг <a href="{{ url('team_contest', {'contestId': cid }) }}">"{{ contestname }}"</a>.
     <br>
-    <a href="{{ url('login') }}">Incode</a> ждёт тебя!
+    {% if start is not null %}
+        <br>
+        Начало тренинга: {{ start }} г.
+    {% endif %}
+    <br>
+    {% if end is not null %}
+        Окончание тренинга: {{ end }} г.
+        <br>
+    {% endif %}
+    <br>
+    Incode ждёт тебя!
+
 </div>
 
 <br>

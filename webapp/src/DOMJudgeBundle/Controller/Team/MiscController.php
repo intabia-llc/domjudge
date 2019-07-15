@@ -226,6 +226,18 @@ class MiscController extends BaseController
     }
 
     /**
+     * @Route("/team_contest/{contestId}", name="team_contest", requirements={"contestId": "-?\d+"})
+     * @param int             $contestId
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function changeContest(int $contestId)
+    {
+        $response = $this->redirectToRoute('team_index');
+        return $this->dj->setCookie('domjudge_cid', (string)$contestId, 0, null, '', false, false,
+                                                 $response);
+    }
+
+    /**
      * @Route("/print", name="team_print")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
