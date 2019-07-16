@@ -13,9 +13,7 @@
                 <p style="color: red">Result</p>
             {% elseif judging.result == 'run-error' %}
             <p style="color: orangered">Result</p>
-            {% elseif judging.result == 'wrong-answer' %}
-            <p style="color: yellow">Result</p>
-            {% elseif judging.result == 'no-output' %}
+            {% elseif judging.result == 'wrong-answer' or judging.result == 'no-output' %}
             <p style="color: yellow">Result</p>
             {% elseif judging.result == 'correct' %}
             <p style="color: green">Result</p>
@@ -66,7 +64,7 @@
             {% endif %}
         </div>
 
-        {% if showCompile == 2 or (showCompile == 1 and judging.result == 'compiler-error') %}
+        {% if judging.result == 'compiler-error' %}
             <hr/>
             <h4 class="text-center">Compilation output</h4>
             {% if judging.outputCompile(true) is not empty %}
@@ -113,25 +111,29 @@
                             </div>
                         </div>
 
-                        <h6 class="text-center">Program output</h6>
-                        {% if judgingRun.judgingRunOutput.outputRun is not empty %}
-                            <pre class="output_text">{{ judgingRun.judgingRunOutput.outputRun }}</pre>
-                        {% else %}
-                            <p class="nodata">There was no program output.</p>
+                        {% if judging.result == 'wrong-answer' or judging.result == 'no-output' %}
+                            <h6 class="text-center">Program output</h6>
+                            {% if judgingRun.judgingRunOutput.outputRun is not empty %}
+                                <pre class="output_text">{{ judgingRun.judgingRunOutput.outputRun }}</pre>
+                            {% else %}
+                                <p class="nodata">There was no program output.</p>
+                            {% endif %}
+
+                            <h6 class="text-center">Diff output</h6>
+                            {% if judgingRun.judgingRunOutput.outputDiff is not empty %}
+                                <pre class="output_text">{{ judgingRun.judgingRunOutput.outputDiff }}</pre>
+                            {% else %}
+                                <p class="nodata">There was no diff output.</p>
+                            {% endif %}
                         {% endif %}
 
-                        <h6 class="text-center">Diff output</h6>
-                        {% if judgingRun.judgingRunOutput.outputDiff is not empty %}
-                            <pre class="output_text">{{ judgingRun.judgingRunOutput.outputDiff }}</pre>
-                        {% else %}
-                            <p class="nodata">There was no diff output.</p>
-                        {% endif %}
-
-                        <h6 class="text-center">Error output (info/debug/errors)</h6>
-                        {% if judgingRun.judgingRunOutput.outputError is not empty %}
-                            <pre class="output_text">{{ judgingRun.judgingRunOutput.outputError }}</pre>
-                        {% else %}
-                            <p class="nodata">There was no stderr output.</p>
+                        {% if judging.result == 'run-error' %}
+                            <h6 class="text-center">Error output (info/debug/errors)</h6>
+                            {% if judgingRun.judgingRunOutput.outputError is not empty %}
+                                <pre class="output_text">{{ judgingRun.judgingRunOutput.outputError }}</pre>
+                            {% else %}
+                                <p class="nodata">There was no stderr output.</p>
+                            {% endif %}
                         {% endif %}
                     {% endif %}
                 {% endfor %}

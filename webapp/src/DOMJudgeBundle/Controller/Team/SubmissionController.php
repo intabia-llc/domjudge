@@ -174,7 +174,7 @@ class SubmissionController extends BaseController
     {
         $verificationRequired = (bool)$this->dj->dbconfig_get('verification_required', false);;
         $showCompile = $this->dj->dbconfig_get('show_compile', 2);
-        $showSampleOutput = $this->dj->dbconfig_get('show_sample_output', 0);
+        $showSampleOutput = $this->dj->dbconfig_get('show_sample_output', 1);
         $user = $this->dj->getUser();
         $team = $user->getTeam();
         $contest = $this->dj->getCurrentContest($team->getTeamid());

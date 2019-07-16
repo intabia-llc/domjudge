@@ -4,7 +4,13 @@
 {% elseif not contest.freezeData.started %}
     <h1 id="teamwelcome" class="text-center">Welcome team <span id="teamwelcometeam">{{ team.name }}</span>!</h1>
     <h2 id="contestnotstarted" class="text-center">
-        Expect, contest {{ contest | printContestStart }}.
+        Please wait, the contest has not started yet...
+
+
+        {#Expect, contest {{ contest | printContestStart }}.#}
+        <div>
+            {% include '@DOMJudge/partials/timer.html.twig' with {contest: current_team_contest} %}
+        </div>
     </h2>
 {% else %}
 

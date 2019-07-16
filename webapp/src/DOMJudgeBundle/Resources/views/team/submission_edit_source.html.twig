@@ -257,18 +257,13 @@
                                 '    }\n' +
                                 '}\n';
                         case 'js':
-                            return 'var readline = require(\'readline\');\n' +
-                                'var rl = readline.createInterface({\n' +
-                                '    input: process.stdin, \n' +
-                                '    output: process.stdout, \n' +
-                                '    terminal: false\n' +
-                                '});\n' +
-                                '    \n' +
-                                'rl.on(\'line\', function(line){\n' +
-                                '    if(isNaN(line)) {\n' +
-                                '        console.log("Hello " + line + "!");\n' +
-                                '    }\n' +
-                                '})';
+                            return 'var fs = require(\'fs\');\n' +
+                                '\n' +
+                                '//Get input arguments\n' +
+                                'var inputArgsStringArray = fs.readSync(0,2000000,null,\'utf-8\')[0].split(\'\\n\').map(function(e){return e.trim();}).filter(function(s){return s && s != \'\'});\n' +
+                                '\n' +
+                                '//return result as output\n' +
+                                'console.log(parseInt(inputArgsStringArray[0]) + parseInt(inputArgsStringArray[1]));';
                         case 'kt':
                             return 'import java.util.*\n' +
                                 '\n' +

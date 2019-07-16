@@ -124,26 +124,22 @@ function togglelastruns()
 	}
 }
 
-// TODO: We should probably reload the page if the clock hits contest
-// start (and end?).
 function updateClock()
 {
-	var curtime = initial+offset;
-	date.setTime(curtime*1000);
+    var curtime = Math.trunc(Date.now() / 1000);
 
 	var fmt = "";
-	if ( timeleftelt.innerHTML=='start delayed' || timeleft.innerHTML == 'no contest' ) { // FIXME
-		var left = 0;
-		var what = timeleftelt.innerHTML;
+	var left = 0;
+	var what = "";
+	if ( timeleftelt.innerHTML === 'start delayed' || timeleft.innerHTML === 'no contest' ) {
+		what = timeleftelt.innerHTML;
 	} else if (curtime >= starttime && curtime < endtime ) {
-		var left = endtime - curtime;
-		var what = "";
+		left = endtime - curtime;
 	} else if (curtime >= activatetime && curtime < starttime ) {
-		var left = starttime - curtime;
-		var what = "time to start: ";
+		left = starttime - curtime;
+		what = "time to start: ";
 	} else {
-		var left = 0;
-		var what = "contest over";
+		what = "contest over";
 	}
 
 	if ( left ) {
@@ -166,7 +162,48 @@ function updateClock()
 	}
 
 	timeleftelt.innerHTML = what + fmt;
-	offset++;
+    offset++;
+
+}
+
+function updateTimer()
+{
+    var curtime = Math.trunc(Date.now() / 1000);
+
+    var fmt = "";
+    var left = 0;
+    var what = "";
+    if ( contesttimer.innerHTML ==='start delayed' || contesttimer.innerHTML === 'no contest' ) { // FIXME
+        what = contesttimeleftelt.innerHTML;
+    } else if (curtime >= starttime && curtime < endtime ) {
+        left = endtime - curtime;
+    } else if (curtime >= activatetime && curtime < starttime ) {
+        left = starttime - curtime;
+        what = "Time to start: ";
+    } else {
+        what = "Contest over";
+    }
+
+    if ( left ) {
+        if ( left > 24*60*60 ) {
+            var d = Math.floor(left/(24*60*60));
+            fmt += d + "d ";
+            left -= d * 24*60*60;
+        }
+        if ( left > 60*60 ) {
+            var h = Math.floor(left/(60*60));
+            fmt += h + ":";
+            left -= h * 60*60;
+        }
+        var m = Math.floor(left/60);
+        if ( m < 10 ) { fmt += "0"; }
+        fmt += m + ":";
+        left -= m * 60;
+        if ( left < 10 ) { fmt += "0"; }
+        fmt += left;
+    }
+
+    contesttimeleftelt.innerHTML = what + fmt;
 }
 
 function setCookie(name, value)
