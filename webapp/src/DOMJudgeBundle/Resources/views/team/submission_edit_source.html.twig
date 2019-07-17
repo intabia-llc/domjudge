@@ -70,8 +70,10 @@
             <div class="row" style="padding-top: 15px">
                 <div class="col-lg-4">
                     {{ form_widget(form) }}
-                    <button type="button" id="back_btn" class="btn-primary btn" style="background-color: #2b2867; border: 0px; color: #fff;" onclick="back()">Back</button>
                         <button type="button" id="ajax_submit_btn" class="btn-primary btn" style="background-color: #a93795; border: 0px; color: #fff;" onclick="ajaxSubmitFunc()">Verify & Submit</button>
+
+
+
                 </div>
             </div>
             <script>
@@ -125,6 +127,8 @@
                 let intervalId = null;
                 function ajaxSubmitFunc() {
 
+                    $("#details").html("<div style=\"text-align: center;\">Solution validation</div>");
+
                     console.log("ajaxSubmitFunc");
 
                     let basePostUrl = "{{ path('code_submit_ajax', {'probId': data.problem.probid, 'langId': 'LANG_ID' }) }}";
@@ -133,7 +137,6 @@
 
                     let sourceText = $("#form_source").val();
 
-                    $("#details").html("<div style=\"text-align: center;\">Solution validation</div>");
 
                     $.post(postUrl, {source: sourceText}, function (response) {
 
@@ -142,6 +145,7 @@
                         console.log('submitId'. submitId);
                         if(submitId !== null) {
                             intervalId = setInterval('refresh(submitId)', 1000);
+                            console.log("ID ID ID ID ID ID = " + intervalId)
                         }
 
                     }).fail(function (result) {
@@ -151,29 +155,47 @@
                 }
 
                 function refresh(submitId) {
+                    console.log("REFRESH");
 
                     let refreshPostUrl = "{{ path('details', {'submitId': 0 }) }}";
                     let postUrl = refreshPostUrl.replace('0', submitId);
 
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!! = " +$("#details"));
+
                     $.post(postUrl, function (details) {
-                        console.log(details);
+
+                        console.log("11111111111111111111 =>" + details.conent);
                         let content = details.content;
 
                         let result = details.result;
-                        if(content !== null) {
-                            // console.log(content);
-                            let baseContent = content.replace("<div class=\"progress\" style=\"margin-top:-9px; height: 10px; \" data-progress-bar>\n" +
-                                "        <div class=\"progress-bar\" role=\"progressbar\" style=\"width: 0%; background-color: #a93795\"\n" +
-                                "             aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>\n" +
-                                "    </div>", "");
+                        if (content !== null) {
 
-                            $("#details").html("");
+                            // if (document.getElementById('details').innerText === 'Solution validation') {
 
-                            $("#details").append("<div id=\"content\">" + baseContent + "</div>");
+
+                                // if (intervalId !== null) {
+                                //     console.log("STOP STOP STOP ID = " + intervalId);
+                                // clearInterval(intervalId);
+                                // }
+
+                                $("#details").html("");
+
+                                $("#details").append("<div id=\"content\">" + content + "</div>");
+                            // }
 
                             if (result) {
-                                $("#ajax_submit_btn").attr("disabled","true")
+
+                                $("#ajax_submit_btn").attr("disabled", "true");
+
+                                $('#exampleModal').modal('toggle');
+                                $('#exampleModal').modal('show');
+                                $('#exampleModal').modal('hide');
+
                             }
+
+
+                            console.log("STOP ID = " + intervalId);
+                            clearInterval(intervalId);
 
                         }
                     }).fail(function (result) {
@@ -195,7 +217,6 @@
                         let selectWithLanguage = document.getElementById('form_language');
                         let language = selectWithLanguage.value;
 
-                        // console.log(selectWithLanguage.value);
                         editor.getSession().setValue(getExample(language));
 
                     } else {
@@ -283,6 +304,28 @@
         </div>
     </div>
 
+
     {{ form_end(form) }}
+
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Congratulations!</h4>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                </div>
+                <div class="modal-body">
+                    Problem {{ data.problem.name }} is solved!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="back()">Return to task list</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 {% endblock %}

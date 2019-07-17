@@ -139,7 +139,7 @@ class DOMJudgeService
                 'c.deactivatetime is null',
                 $qb->expr()->gt('c.deactivatetime', $now)
             ))
-            ->orderBy('c.activatetime');
+            ->orderBy('c.activatetime', 'DESC');
 
         if (!$alsofuture) {
             $qb->andWhere($qb->expr()->lte('c.activatetime', $now));

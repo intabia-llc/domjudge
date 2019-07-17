@@ -76,40 +76,16 @@
 
         {% if showSampleOutput and judging.result != 'compiler-error' %}
             <hr/>
-            <h4 class="text-center">Run(s) result</h4>
 
             {% if runs is empty %}
                 <p class="nodata">No runs available.</p>
             {% else %}
                 {% for run in runs %}
-                    <h5 id="run-{{ run.rank }}" class="text-center mt-4">Run {{ run.rank }}</h5>
 
                     {% set judgingRun = run.judgingRuns.first %}
                     {% if judgingRun == null or judgingRun.runresult == null %}
                         <p class="nodata">Run not finished yet.</p>
                     {% else %}
-                        <div class="row">
-                            <div class="col-md-{{ size|default(4) }}">
-                                <table class="table table-sm table-striped">
-                                    <tr>
-                                        <th>Description</th>
-                                        <td>{{ run.description(true) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Runtime</th>
-                                        <td>{{ judgingRun.runtime }} sec</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Result</th>
-                                        <td>
-                                                <span class="sol sol_{% if judgingRun.runresult != 'correct' %} in{% endif %}correct">
-                                                    {{ judgingRun.runresult }}
-                                                </span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
 
                         {% if judging.result == 'wrong-answer' or judging.result == 'no-output' %}
                             <h6 class="text-center">Program output</h6>

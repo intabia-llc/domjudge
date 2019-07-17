@@ -208,7 +208,8 @@
                             <div class="{{ scoreCssClass }}">
                                 <span>
                                     {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
-                                        {{ score.numberOfPoints }}
+                                        {#{{ score.numberOfPoints }}#}
+                                        {{ problem.points }}
                                     {% else %}
                                         0
                                     {% endif %}
