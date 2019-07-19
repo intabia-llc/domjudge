@@ -165,10 +165,10 @@ function updateClock()
 	}
 
 
-	// timeleftelt.innerHTML = what + fmt;
+	timeleftelt.innerHTML = what + fmt;
     // console.log("why?");
 
-    timeleftelt.replaceWith(what + fmt);
+    // timeleftelt.replaceWith(what + fmt);
 }
 
 function updateTimer()
