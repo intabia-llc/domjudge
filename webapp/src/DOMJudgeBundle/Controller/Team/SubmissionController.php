@@ -34,6 +34,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -44,6 +45,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 
 //use Dompdf\Options;
 use PdfParser;
+use Symfony\Component\Routing\RouterInterface;
 
 
 /**
@@ -373,10 +375,10 @@ class SubmissionController extends BaseController
      * @param int $probId
      * @param string $langId
      * @param Request $request
+     * @param RouterInterface $router
      * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\DBAL\DBALException
      */
-    public function editorAction(int $probId, string $langId, Request $request)
+    public function editorAction(int $probId, string $langId, Request $request, RouterInterface $router)
     {
         /** @var Language $languages */
         $languages = $this->em->getRepository(Language::class)->findBy(['allowSubmit' => true]);

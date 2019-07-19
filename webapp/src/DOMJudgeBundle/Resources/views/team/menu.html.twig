@@ -6,13 +6,22 @@
     </button>
 
     {% set current_route = app.request.attributes.get('_route') %}
+    <div style="min-width: 135px">
+        {% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}
+    </div>
 
-    <div class="collapse navbar-collapse" id="menuDefault">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item {% if current_route in ['team_index', 'team_clarification', 'team_clarification_add', 'team_submission'] %}active{% endif %}">
-                <a class="nav-link" href="{{ path('team_index') }}"><i class="fas fa-home"></i> Home</a>
+    <div class="collapse navbar-collapse " id="menuDefault">
+        <ul id="crumbs" class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('contest_index', {'contest': current_team_contest, 'contests': current_team_contests, 'change_path': 'team_change_contest', 'show_no_contest': false}) }}">
+                    {{ current_team_contest.name }}</a>
             </li>
-
+            {% if current_problem is not null %}
+            <li class="nav-item {% if current_route in ['team_index', 'team_clarification', 'team_clarification_add', 'team_submission'] %}active{% endif %}">
+                <a class="nav-link" href="{{ path('team_index') }}">> {{ current_problem.name }} </a>
+            </li>
+            {% endif %}
 
             {% if is_granted('ROLE_JURY') or is_granted('ROLE_BALLOON') %}
                 <li class="nav-item">
@@ -21,9 +30,9 @@
             {% endif %}
         </ul>
 
-        {% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}
 
         <ul class="navbar-nav">
+            {#style="display: none">#}
             <li class="ajax-loader-container">
                 <div class="spinner-border spinner-border-sm ajax-loader" style="display: none;" role="status">
                     <span class="sr-only">Loading...</span>

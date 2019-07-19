@@ -5,9 +5,6 @@
     <h1 id="teamwelcome" class="text-center">Welcome team <span id="teamwelcometeam">{{ team.name }}</span>!</h1>
     <h2 id="contestnotstarted" class="text-center">
         Please wait, the contest has not started yet...
-
-
-        {#Expect, contest {{ contest | printContestStart }}.#}
         <div>
             {% include '@DOMJudge/partials/timer.html.twig' with {contest: current_team_contest} %}
         </div>
@@ -23,7 +20,7 @@
         {% include '@DOMJudge/partials/messages.html.twig' %}
     </div>
 
-    <div class="row">
+    <div class="row" style="display: none">
         <div class="col">
             <h3 class="teamoverview">Submissions</h3>
 

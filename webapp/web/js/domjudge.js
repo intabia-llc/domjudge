@@ -126,13 +126,16 @@ function togglelastruns()
 
 function updateClock()
 {
+
+    var timeleftelt = $("#timeleft");
+
     var curtime = Math.trunc(Date.now() / 1000);
 
 	var fmt = "";
 	var left = 0;
 	var what = "";
-	if ( timeleftelt.innerHTML === 'start delayed' || timeleft.innerHTML === 'no contest' ) {
-		what = timeleftelt.innerHTML;
+	if ( timeleftelt.html() === 'start delayed' || timeleftelt.html() === 'no contest' ) {
+		what = timeleftelt.html();
 	} else if (curtime >= starttime && curtime < endtime ) {
 		left = endtime - curtime;
 	} else if (curtime >= activatetime && curtime < starttime ) {
@@ -161,9 +164,11 @@ function updateClock()
 		fmt += left;
 	}
 
-	timeleftelt.innerHTML = what + fmt;
-    offset++;
 
+	// timeleftelt.innerHTML = what + fmt;
+    // console.log("why?");
+
+    timeleftelt.replaceWith(what + fmt);
 }
 
 function updateTimer()

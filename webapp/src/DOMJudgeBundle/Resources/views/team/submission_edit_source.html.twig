@@ -70,8 +70,10 @@
             <div class="row" style="padding-top: 15px">
                 <div class="col-lg-4">
                     {{ form_widget(form) }}
-                        <button type="button" id="ajax_submit_btn" class="btn-primary btn" style="background-color: #a93795; border: 0px; color: #fff;" onclick="ajaxSubmitFunc()">Verify & Submit</button>
-
+                    <button type="button" id="ajax_submit_btn" class="btn-primary btn"
+                            style="background-color: #a93795; border: 0px; color: #fff;" onclick="ajaxSubmitFunc()">
+                        Verify & Submit
+                    </button>
 
 
                 </div>
@@ -124,10 +126,21 @@
                 function back() {
                     location.href = "{{ path('team_index') }}";
                 }
-                let intervalId = null;
+
+                var intervalId = null;
+
                 function ajaxSubmitFunc() {
 
-                    $("#details").html("<div style=\"text-align: center;\">Solution validation</div>");
+                    $("#details").html("<div class=\"d-flex justify-content-center\">\n" +
+                        "    \n" +
+                        "  <div class=\"spinner-border\" role=\"status\">\n" +
+                        "    <span class=\"sr-only\">Loading...</span>\n" +
+                        "\n" +
+                        "  </div>\n" +
+                        "    <p style=\"\n" +
+                        "    padding: 5px 0 0 8px;\n" +
+                        "\">  Solution validation </p>\n" +
+                        "</div>");
 
                     console.log("ajaxSubmitFunc");
 
@@ -142,10 +155,10 @@
 
                         submitId = response.submitId;
 
-                        console.log('submitId'. submitId);
-                        if(submitId !== null) {
+                        console.log('submitId'.submitId);
+                        if (submitId !== null) {
                             intervalId = setInterval('refresh(submitId)', 1000);
-                            console.log("ID ID ID ID ID ID = " + intervalId)
+                            console.log("intervalId", intervalId);
                         }
 
                     }).fail(function (result) {
@@ -160,28 +173,16 @@
                     let refreshPostUrl = "{{ path('details', {'submitId': 0 }) }}";
                     let postUrl = refreshPostUrl.replace('0', submitId);
 
-                    console.log("!!!!!!!!!!!!!!!!!!!!!!!! = " +$("#details"));
-
                     $.post(postUrl, function (details) {
 
-                        console.log("11111111111111111111 =>" + details.conent);
                         let content = details.content;
 
                         let result = details.result;
                         if (content !== null) {
 
-                            // if (document.getElementById('details').innerText === 'Solution validation') {
+                            $("#details").html("");
 
-
-                                // if (intervalId !== null) {
-                                //     console.log("STOP STOP STOP ID = " + intervalId);
-                                // clearInterval(intervalId);
-                                // }
-
-                                $("#details").html("");
-
-                                $("#details").append("<div id=\"content\">" + content + "</div>");
-                            // }
+                            $("#details").append("<div id=\"content\">" + content + "</div>");
 
                             if (result) {
 
@@ -193,10 +194,11 @@
 
                             }
 
+                            if (intervalId !== null) {
+                                console.log("clearInterval", intervalId);
 
-                            console.log("STOP ID = " + intervalId);
-                            clearInterval(intervalId);
-
+                                clearInterval(intervalId);
+                            }
                         }
                     }).fail(function (result) {
                         console.log(JSON.stringify(result));
@@ -206,7 +208,7 @@
 
                 function editorField() {
                     let activeLi = document.getSelection().baseNode.textContent.trim();
-                    if ( activeLi === 'Example:' ) {
+                    if (activeLi === 'Example:') {
                         console.log(activeLi);
 
                         $("#source_code").attr('hidden', true);
@@ -314,14 +316,16 @@
                 <div class="modal-header">
                     <h4 class="modal-title" id="exampleModalLabel">Congratulations!</h4>
 
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
 
                 </div>
                 <div class="modal-body">
-                    Problem {{ data.problem.name }} is solved!
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="back()">Return to task list</button>
+                    Problem {{ data.problem.name }} is solved! <br><br>
+                    <button type="button" class="btn-primary btn"
+                            style="background-color: #a93795; border: 0px; color: #fff;" data-dismiss="modal"
+                            onclick="back()">Return to task list
+                    </button>
                 </div>
             </div>
         </div>

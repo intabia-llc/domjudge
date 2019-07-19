@@ -42,8 +42,12 @@
     </div>
 {% endif %}
 
-
-<table class="scoreboard-team center {% if jury %}scoreboard_jury{% endif %}">
+<br>
+<div class="container">
+    <div class="row">
+    <div class="col-6">
+        <h3>Tasks</h3>
+<table class="scoreboard-team {% if jury %}scoreboard_jury{% endif %}">
 
     {# output table column groups (for the styles) #}
     <colgroup>
@@ -110,8 +114,8 @@
         {% include '@DOMJudge/partials/scoreboard_summary.html.twig' with {sortOrder: previousSortOrder} %}
 
 
-        <th title="circle / problem" colspan="2" scope="col">problem</th>
-        <th title="submit name" scope="col">submit</th>
+        <th title="circle / problem" scope="col" style="text-align: left; padding-left: 19px">task</th>
+        <th title="submit name" scope="col">points</th>
         <th title="submit name" scope="col">result</th>
         {#<th title="# solved / penalty time" colspan="2" scope="col">score</th>#}
 
@@ -131,40 +135,27 @@
                 {% endif %}
             {% endif %}
             <tr>
-            <td class="scorenc" title="circle" scope="col">
-                {% if problem.color is not empty %}
-                    <a class="circle" style="background: {{ problem.color }}; border: 0px"></a>
-                {% endif %}
-            </td>
-            <td title="problem {{ problem.problem.name }}" scope="col">
-                <div class="row">
-                        {{ problem.shortname }}
-                        {% if scoreboard.showPoints %}
-                            <span class='problempoints'>
-                                [{% if problem.points == 1 %}1 point{% else %}{{ problem.points }} points{% endif %}]
-                            </span>
-                        {% endif %}
-                </div>
-            </td>
+
 
             {% for score in scoreboard.scores %}
+
+
+                <td title="problem {{ problem.problem.name }}" scope="col">
+
+                    {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
+
+                        <a style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>
+                    {% else %}
+                        <a href="{{ path('team_change_problem', {'problemId': problem.probid, 'langId': 'java' }) }}" style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>
+                    {% endif %}
+
+                </td>
+
 
                 {# CSS class for correct/incorrect/neutral results #}
                 {% set scoreCssClass = 'score_neutral' %}
                     <td>
-                        <div class="text-center">
-                            {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
-                                <a class="btn btn-secondary" role="button" style="background-color: rgba(0,0,0,0.31); border: 0px; color: #fff;">
-                                    Start
-                                </a>
-                            {% else %}
-                                <a class="btn btn-secondary" role="button" style="background-color: #a93795; border: 0px; color: #fff;"
-                                   href="{{ path('code_editor', {'probId': problem.probid, 'langId': 'java' }) }}">
-                                    Start
-                                </a>
-                            {% endif %}
-
-                        </div>
+                        {{ problem.points }}
                     </td>
                 {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
                     {% set scoreCssClass = 'score_correct' %}
@@ -208,7 +199,7 @@
                             <div class="{{ scoreCssClass }}">
                                 <span>
                                     {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
-                                        {#{{ score.numberOfPoints }}#}
+                                        {% set totalScore = score.numberOfPoints %}
                                         {{ problem.points }}
                                     {% else %}
                                         0
@@ -226,6 +217,17 @@
 
     </tbody>
 </table>
+
+        {% for score in scoreboard.scores %}
+            <br><p>Your score: <strong>{{ score.numberOfPoints }}</strong></p>
+        {% endfor %}
+    </div>
+    <div class="col-6">
+        <h3>Note</h3>
+        <p>In the header timer shows remaining time to solve the contest. Unfortunately, the system will not allow to send a solution after the time expires, try to catch the deadline!</p>
+    </div>
+    </div>
+</div>
 
 {% if showLegends %}
     <p><br/><br/></p>

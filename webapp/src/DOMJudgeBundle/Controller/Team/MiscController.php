@@ -5,6 +5,7 @@ namespace DOMJudgeBundle\Controller\Team;
 use Doctrine\ORM\EntityManagerInterface;
 use DOMJudgeBundle\Controller\BaseController;
 use DOMJudgeBundle\Entity\Clarification;
+use DOMJudgeBundle\Entity\Contest;
 use DOMJudgeBundle\Entity\Language;
 use DOMJudgeBundle\Entity\Notification;
 use DOMJudgeBundle\Form\Type\PrintType;
@@ -206,6 +207,27 @@ class MiscController extends BaseController
         return $this->render('@DOMJudge/team/index.html.twig', $data);
     }
 
+
+    /**
+     * @Route("/contests", name="contest_index")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function contestsAction(Request $request)
+    {
+        $user    = $this->dj->getUser();
+        $team    = $user->getTeam();
+
+        $data['contests']        = $team ? $this->dj->getCurrentContests($user->getTeamid()) : null;
+        $data['current_contest'] =  $team ? $this->dj->getCurrentContest($user->getTeamid()) : null;
+        $data['current_problem'] = null;
+
+        return $this->dj->setCookie('domjudge_problemid', '', 0, null, '',
+            false, false, $this->render('@DOMJudge/team/partials/contest.html.twig', $data));
+
+    }
+
+
     /**
      * @Route("/change-contest/{contestId}", name="team_change_contest",
      *         requirements={"contestId": "-?\d+"})
@@ -219,10 +241,24 @@ class MiscController extends BaseController
         if ($this->isLocalReferrer($router, $request)) {
             $response = new RedirectResponse($request->headers->get('referer'));
         } else {
-            $response = $this->redirectToRoute('public_index');
+            $response = $this->redirectToRoute('team_index');
         }
         return $this->dj->setCookie('domjudge_cid', (string)$contestId, 0, null, '', false, false,
                                                  $response);
+    }
+
+    /**
+     * @Route("/change-problem/{problemId}/{langId}", name="team_change_problem",
+     *         requirements={"problemId": "-?\d+", "langId": "\S+"})
+     * @param int $problemId
+     * @param string $langId
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function changeProblemAction(int $problemId, string $langId)
+    {
+        $response = $this->redirectToRoute('code_editor',[ 'probId' => $problemId, 'langId' => $langId ]);
+        return $this->dj->setCookie('domjudge_problemid', (string)$problemId, 0, null, '',
+            false, false, $response);
     }
 
     /**

@@ -174,6 +174,24 @@ class DOMJudgeService
         return null;
     }
 
+
+    /**
+     * Get the currently selected problem
+     * @return Problem|null|object
+     */
+    public function getCurrentProblem()
+    {
+        $selected_probid = $this->request->cookies->get('domjudge_problemid');
+
+        error_log("PROBLEM ID ======> " .$selected_probid);
+        if ($selected_probid == null || $selected_probid == -1) {
+            return null;
+        }
+
+        return $this->em-> getRepository(Problem::class)->find($selected_probid);
+    }
+
+
     /**
      * Get the contest with the given contest ID
      * @param int $cid

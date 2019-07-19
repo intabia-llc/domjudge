@@ -1,0 +1,60 @@
+{% extends "@DOMJudge/team/base.html.twig" %}
+{% import _self as self %}
+
+{% block content %}
+
+    <table class="scoreboard-team center ">
+
+        <thead>
+
+        <tr class="scoreheader-team">
+
+            <th title="circle / problem" scope="col"></th>
+            <th title="circle / problem" scope="col" style="min-width: 250px">contest name</th>
+            <th title="circle / problem" scope="col">status</th>
+            <th title="submit name" scope="col">active time</th>
+            <th title="submit name" scope="col">start time</th>
+            <th title="submit name" scope="col">end time</th>
+            <th title="submit name" scope="col">deactive time</th>
+
+        </thead>
+        <tbody>
+
+
+        {% for training in contests %}
+            <tr>
+                <td>
+                    {{ training.cid }}
+                </td>
+                <td>
+                    <a href="{{ path('team_change_contest', {'contestId': training.cid}) }}"
+                       style="color: #a93795">{{ training.name }}</a>
+                </td>
+                <td>
+                    status
+                </td>
+                <td>
+                    {{ training.activatetimeString | slice(11, 5) }}
+                    {{ training.activatetimeString | slice(8, 2) }}.{{ training.activatetimeString | slice(5, 2)}}.{{ training.activatetimeString | slice(0, 4) }}
+                </td>
+                <td>
+                    {{ training.starttimeString | slice(11, 5) }}
+                    {{ training.starttimeString | slice(8, 2) }}.{{ training.starttimeString | slice(5, 2)}}.{{ training.starttimeString | slice(0, 4) }}
+                </td>
+                <td>
+                    {{ training.endtimeString | slice(11, 5) }}
+                    {{ training.endtimeString | slice(8, 2) }}.{{ training.endtimeString | slice(5, 2)}}.{{ training.endtimeString | slice(0, 4) }}
+                </td>
+                <td>
+                    {{ training.deactivatetimeString | slice(11, 5) }}
+                    {{ training.deactivatetimeString | slice(8, 2) }}.{{ training.deactivatetimeString | slice(5, 2)}}.{{ training.deactivatetimeString | slice(0, 4) }}
+                </td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+
+
