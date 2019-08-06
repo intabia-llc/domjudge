@@ -126,36 +126,63 @@ function togglelastruns()
 
 function updateClock()
 {
-
-    var timeleftelt = $("#timeleft");
-
     var curtime = Math.trunc(Date.now() / 1000);
 
 	var fmt = "";
 	var left = 0;
 	var what = "";
-	if ( timeleftelt.html() === 'start delayed' || timeleftelt.html() === 'no contest' ) {
-		what = timeleftelt.html();
-	} else if (curtime >= starttime && curtime < endtime ) {
-		left = endtime - curtime;
-	} else if (curtime >= activatetime && curtime < starttime ) {
-		left = starttime - curtime;
-		what = "time to start: ";
-	} else {
-		what = "contest over";
-	}
+	if (timerId === null || document.getElementById("timeleft") === null)
+	{
+        if (curtime >= starttime && curtime < endtime) {
+            left = endtime - curtime;
+        } else if (curtime >= activatetime && curtime < starttime) {
+            left = starttime - curtime;
+        }
 
+        if(document.getElementById("timeleft") === null)
+        {
+            var divNavbarText = document.createElement("div");
+            divNavbarText.setAttribute('class', 'navbar-text');
+            divNavbarText.setAttribute('style', 'white-space:nowrap;');
+            timerId.appendChild( divNavbarText );
+
+            var iFasFaClock = document.createElement("i");
+            iFasFaClock.setAttribute('class', 'fas fa-clock');
+            iFasFaClock.setAttribute('style', 'padding-left: 10px;');
+            divNavbarText.appendChild( iFasFaClock );
+
+
+            var span = document.createElement("span");
+            span.setAttribute('id', 'timeleft');
+            divNavbarText.appendChild( span );
+
+        }
+    } else {
+        if (timeleft.innerHTML === 'start delayed' || timeleft.innerHTML === 'no contest') {
+            what = timeleft.innerHTML;
+        } else if (curtime >= starttime && curtime < endtime) {
+            left = endtime - curtime;
+        } else if (curtime >= activatetime && curtime < starttime) {
+            left = starttime - curtime;
+            what = "time to start: ";
+        } else {
+            what = "contest over";
+        }
+    }
 	if ( left ) {
-		if ( left > 24*60*60 ) {
-			var d = Math.floor(left/(24*60*60));
+        if ( left > 24*60*60 ) {
+            var d = Math.floor(left/(24*60*60));
 			fmt += d + "d ";
 			left -= d * 24*60*60;
 		}
+
 		if ( left > 60*60 ) {
 			var h = Math.floor(left/(60*60));
 			fmt += h + ":";
 			left -= h * 60*60;
-		}
+		} else {
+		    fmt += "0:";
+        }
 		var m = Math.floor(left/60);
 		if ( m < 10 ) { fmt += "0"; }
 		fmt += m + ":";
@@ -164,11 +191,7 @@ function updateClock()
 		fmt += left;
 	}
 
-
-	timeleftelt.innerHTML = what + fmt;
-    // console.log("why?");
-
-    // timeleftelt.replaceWith(what + fmt);
+    timeleft.innerHTML = what + fmt;
 }
 
 function updateTimer()
@@ -178,7 +201,7 @@ function updateTimer()
     var fmt = "";
     var left = 0;
     var what = "";
-    if ( contesttimer.innerHTML ==='start delayed' || contesttimer.innerHTML === 'no contest' ) { // FIXME
+    if ( contesttimer.innerHTML ==='start delayed' || contesttimer.innerHTML === 'no contest' ) {
         what = contesttimeleftelt.innerHTML;
     } else if (curtime >= starttime && curtime < endtime ) {
         left = endtime - curtime;

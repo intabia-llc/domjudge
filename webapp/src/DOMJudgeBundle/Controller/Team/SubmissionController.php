@@ -165,6 +165,23 @@ class SubmissionController extends BaseController
         }
     }
 
+
+    /**
+     * @Route("/timer", name="timer")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function updateTimer(Request $request)
+    {
+        $user = $this->dj->getUser();
+        $team = $user->getTeam();
+        $contest = $this->dj->getCurrentContest($team->getTeamid());
+        return $this->render('@DOMJudge/partials/menu_countdown.html.twig', [
+            'contest' => $contest
+        ]);
+
+    }
+
     /**
      * @Route("/submission/details/{submitId}", name="details", requirements={"submitId": "\d+"})
      * @param Request $request

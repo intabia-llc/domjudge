@@ -6,20 +6,29 @@
     </button>
 
     {% set current_route = app.request.attributes.get('_route') %}
-    <div style="min-width: 135px">
+    <div id = "timerId" style="min-width: 135px">
         {% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}
     </div>
 
     <div class="collapse navbar-collapse " id="menuDefault">
         <ul id="crumbs" class="navbar-nav mr-auto">
 
-            <li class="nav-item">
-                <a class="nav-link" href="{{ path('contest_index', {'contest': current_team_contest, 'contests': current_team_contests, 'change_path': 'team_change_contest', 'show_no_contest': false}) }}">
-                    {{ current_team_contest.name }}</a>
-            </li>
+            {% if current_team_contest is not null %}
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ path('contest_index', {'contest': current_team_contest, 'contests': current_team_contests, 'change_path': 'team_change_contest', 'show_no_contest': false}) }}">
+                        {{ current_team_contest.name }}</a>
+                </li>
+            {% endif %}
+
             {% if current_problem is not null %}
+
+                <li class="nav-item" >
+                    <a class="nav" style="color: #6c757d; padding-top: 7px "> -> </a>
+                </li>
+
             <li class="nav-item {% if current_route in ['team_index', 'team_clarification', 'team_clarification_add', 'team_submission'] %}active{% endif %}">
-                <a class="nav-link" href="{{ path('team_index') }}">> {{ current_problem.name }} </a>
+                <a class="nav-link" href="{{ path('team_index') }}"> {{ current_problem.name }} </a>
             </li>
             {% endif %}
 
@@ -38,9 +47,6 @@
                     <span class="sr-only">Loading...</span>
                 </div>
             </li>
-            {% if current_team_contests | length > 1 %}
-                {% include '@DOMJudge/partials/menu_change_contest.html.twig' with {contest: current_team_contest, contests: current_team_contests, change_path: 'team_change_contest', show_no_contest: false} %}
-            {% endif %}
         </ul>
 
         {% include '@DOMJudge/partials/menu_login_logout_button.html.twig' with {confirmLogout: true} %}

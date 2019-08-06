@@ -131,6 +131,12 @@
 
                 function ajaxSubmitFunc() {
 
+                    {#let timerPostUrl = "{{ path('timer')}}";#}
+
+                    {#$.post(timerPostUrl, function (timerResponse) {#}
+                        {#$('#timer').innerHTML = timerResponse;#}
+                    {#});#}
+
                     $("#details").html("<div class=\"d-flex justify-content-center\">\n" +
                         "    \n" +
                         "  <div class=\"spinner-border\" role=\"status\">\n" +
@@ -168,7 +174,6 @@
                 }
 
                 function refresh(submitId) {
-                    console.log("REFRESH");
 
                     let refreshPostUrl = "{{ path('details', {'submitId': 0 }) }}";
                     let postUrl = refreshPostUrl.replace('0', submitId);
@@ -198,6 +203,68 @@
                                 console.log("clearInterval", intervalId);
 
                                 clearInterval(intervalId);
+                                intervalId = null;
+
+                                $('#timerId').html("");
+                                {#let timerPostUrl = "{{ path('timer')}}";#}
+
+                                // $.post(timerPostUrl, function (timerResponse) {
+
+                                // let innerTimer = document.getElementById("timerId").innerHTML;
+                                //     console.log("MESSAGE = " + document.getElementById("timerId").innerHTML);
+
+                                // $('#timerId').html("            var divNavbarText = document.createElement(\"div\");\n" +
+                                //     "            divNavbarText.setAttribute('class', 'navbar-text');\n" +
+                                //     "            divNavbarText.setAttribute('style', 'white-space:nowrap;');\n" +
+                                //     "            timerId.appendChild( divNavbarText );\n" +
+                                //     "\n" +
+                                //     "            var iFasFaClock = document.createElement(\"i\");\n" +
+                                //     "            iFasFaClock.setAttribute('class', 'fas fa-clock');\n" +
+                                //     "            iFasFaClock.setAttribute('style', 'padding-left: 10px;');\n" +
+                                //     "            divNavbarText.appendChild( iFasFaClock );\n" +
+                                //     "\n" +
+                                //     "\n" +
+                                //     "            var span = document.createElement(\"span\");\n" +
+                                //     "            span.setAttribute('id', 'timeleft');\n" +
+                                //     "            divNavbarText.appendChild( span );\n");
+
+                                // document.getElementById('timerId').html("            var divNavbarText = document.createElement(\"div\");\n" +
+                                //     "            divNavbarText.setAttribute('class', 'navbar-text');\n" +
+                                //     "            divNavbarText.setAttribute('style', 'white-space:nowrap;');\n" +
+                                //     "            timerId.appendChild( divNavbarText );\n" +
+                                //     "\n" +
+                                //     "            var iFasFaClock = document.createElement(\"i\");\n" +
+                                //     "            iFasFaClock.setAttribute('class', 'fas fa-clock');\n" +
+                                //     "            iFasFaClock.setAttribute('style', 'padding-left: 10px;');\n" +
+                                //     "            divNavbarText.appendChild( iFasFaClock );\n" +
+                                //     "\n" +
+                                //     "\n" +
+                                //     "            var span = document.createElement(\"span\");\n" +
+                                //     "            span.setAttribute('id', 'timeleft');\n" +
+                                //     "            divNavbarText.appendChild( span );\n");
+
+                                // document.getElementById('timerId').html(innerTimer);
+
+                                // document.getElementById('timeleft').html(document.getElementById("timeleft").innerHTML);
+
+
+
+                                {#let timerPostUrl = "{{ path('timer')}}";#}
+
+                                // setInterval(
+                                // $.post(timerPostUrl, function (timerResponse) {
+                                //     console.log("RESPONSE = " + timerResponse);
+                                //     $('#timerId').innerHTML = timerResponse;
+                                // });
+                                    // , 1000);
+
+
+                                // $('span#timeleft').html("");
+
+                                // document.getElementById("timeleft").innerHTML = "";
+
+                                // });
+
                             }
                         }
                     }).fail(function (result) {

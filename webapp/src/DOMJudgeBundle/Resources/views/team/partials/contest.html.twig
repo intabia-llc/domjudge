@@ -12,26 +12,33 @@
             <th title="circle / problem" scope="col"></th>
             <th title="circle / problem" scope="col" style="min-width: 250px">contest name</th>
             <th title="circle / problem" scope="col">status</th>
-            <th title="submit name" scope="col">active time</th>
+            <th title="submit name" scope="col">activate time</th>
             <th title="submit name" scope="col">start time</th>
             <th title="submit name" scope="col">end time</th>
-            <th title="submit name" scope="col">deactive time</th>
+            <th title="submit name" scope="col">deactivate time</th>
 
         </thead>
         <tbody>
 
-
+        {% set id = 0 %}
         {% for training in contests %}
+            {% set id = id + 1 %}
             <tr>
                 <td>
-                    {{ training.cid }}
+                    {{ id }}
                 </td>
                 <td>
                     <a href="{{ path('team_change_contest', {'contestId': training.cid}) }}"
                        style="color: #a93795">{{ training.name }}</a>
                 </td>
                 <td>
-                    status
+                    {% if training.activatetime < date().timestamp and training.starttime > date().timestamp %}
+                        status1
+                    {% elseif training.starttime < date().timestamp and training.endtime > date().timestamp %}
+                        status2
+                    {% elseif training.endtime < date().timestamp and training.deactivatetime > date().timestamp %}
+                        status3
+                    {% endif %}
                 </td>
                 <td>
                     {{ training.activatetimeString | slice(11, 5) }}
