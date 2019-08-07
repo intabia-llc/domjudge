@@ -13,16 +13,9 @@
     var starttime = {{ contest.starttime|default(-1) }};
     var endtime = {{ contest.endtime|default(-1) }};
     var contesttimeleftelt = document.getElementById("contesttimer");
-    console.log("reload");
 
     setInterval(function () {
         updateTimer();
-        console.log(contesttimeleftelt.innerText);
-        if(contesttimeleftelt.innerText === 'Time to start: 00:01') {
-            console.log("00:01");
-            reloadPage();
-            // clearInterval(this);
-        }
     }, 1000);
 
 </script>

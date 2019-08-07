@@ -128,14 +128,11 @@
                 }
 
                 var intervalId = null;
+                var submitId = null;
 
-                function ajaxSubmitFunc() {
+                async function ajaxSubmitFunc() {
 
-                    {#let timerPostUrl = "{{ path('timer')}}";#}
-
-                    {#$.post(timerPostUrl, function (timerResponse) {#}
-                        {#$('#timer').innerHTML = timerResponse;#}
-                    {#});#}
+                    console.log("ajaxSubmitFunc");
 
                     $("#details").html("<div class=\"d-flex justify-content-center\">\n" +
                         "    \n" +
@@ -147,8 +144,6 @@
                         "    padding: 5px 0 0 8px;\n" +
                         "\">  Solution validation </p>\n" +
                         "</div>");
-
-                    console.log("ajaxSubmitFunc");
 
                     let basePostUrl = "{{ path('code_submit_ajax', {'probId': data.problem.probid, 'langId': 'LANG_ID' }) }}";
                     let selectedLang = $('#form_language').val();
@@ -163,7 +158,7 @@
 
                         console.log('submitId'.submitId);
                         if (submitId !== null) {
-                            intervalId = setInterval('refresh(submitId)', 1000);
+                            intervalId = setInterval(refreshDetails, 1000);
                             console.log("intervalId", intervalId);
                         }
 
@@ -173,39 +168,77 @@
 
                 }
 
-                function refresh(submitId) {
+                function refreshDetails() {
 
                     let refreshPostUrl = "{{ path('details', {'submitId': 0 }) }}";
                     let postUrl = refreshPostUrl.replace('0', submitId);
 
-                    $.post(postUrl, function (details) {
+                    $.ajax({
+                        url: postUrl,
+                        success: function (details) {
 
-                        let content = details.content;
+                            let content = details.content;
 
-                        let result = details.result;
-                        if (content !== null) {
+                            let result = details.result;
+                            if (content !== null) {
 
-                            $("#details").html("");
+                                document.getElementById("details").innerHTML = "<div id=\"content\">" + content + "</div>";
+                                if (result) {
 
-                            $("#details").append("<div id=\"content\">" + content + "</div>");
+                                    $("#ajax_submit_btn").attr("disabled", "true");
+                                    //
+                                    $('#exampleModal').modal('toggle');
+                                    $('#exampleModal').modal('show');
+                                    $('#exampleModal').modal('hide');
 
-                            if (result) {
+                                }
 
-                                $("#ajax_submit_btn").attr("disabled", "true");
+                                if (intervalId !== null) {
+                                    console.log("clearInterval", intervalId);
 
-                                $('#exampleModal').modal('toggle');
-                                $('#exampleModal').modal('show');
-                                $('#exampleModal').modal('hide');
-
+                                    clearInterval(intervalId);
+                                    intervalId = null;
+                                    submitId = null;
+                                    document.getElementById("timerId").innerHTML = "";
+                                }
                             }
+                        }
+                    });
+                    // $.post(postUrl, async function (details) {
+                    //
+                    //     let content = details.content;
+                    //
+                    //     let result = details.result;
+                    //     if (content !== null) {
+                    //
+                    //         $("#details").html("");
+                    //
+                    //         $("#details").append("<div id=\"content\">" + content + "</div>");
+                    //
+                    //         if (result) {
+                    //
+                    //             $("#ajax_submit_btn").attr("disabled", "true");
+                    //
+                    //             $('#exampleModal').modal('toggle');
+                    //             $('#exampleModal').modal('show');
+                    //             $('#exampleModal').modal('hide');
+                    //
+                    //         }
+                    //
+                    //         if (intervalId !== null) {
+                    //             console.log("clearInterval", intervalId);
+                    //
+                    //             clearInterval(intervalId);
+                    //             intervalId = null;
+                    //             submitId = null;
+                    //             // $('#timerId').load('#timerId');
+                    //
+                    //             $('#timerId').html("");
+                                // $('#timeleft').html("");
 
-                            if (intervalId !== null) {
-                                console.log("clearInterval", intervalId);
+                                // $("#timerId").refresh();
 
-                                clearInterval(intervalId);
-                                intervalId = null;
 
-                                $('#timerId').html("");
                                 {#let timerPostUrl = "{{ path('timer')}}";#}
 
                                 // $.post(timerPostUrl, function (timerResponse) {
@@ -251,11 +284,11 @@
 
                                 {#let timerPostUrl = "{{ path('timer')}}";#}
 
-                                // setInterval(
-                                // $.post(timerPostUrl, function (timerResponse) {
-                                //     console.log("RESPONSE = " + timerResponse);
-                                //     $('#timerId').innerHTML = timerResponse;
-                                // });
+                                {#// setInterval(#}
+                                {#$.post(timerPostUrl, function (timerResponse) {#}
+                                    {#console.log("RESPONSE = " + timerResponse);#}
+                                    {#// $('#timerId').innerHTML = timerResponse;#}
+                                {#});#}
                                     // , 1000);
 
 
@@ -265,11 +298,11 @@
 
                                 // });
 
-                            }
-                        }
-                    }).fail(function (result) {
-                        console.log(JSON.stringify(result));
-                    });
+                    //         }
+                    //     }
+                    // }).fail(function (result) {
+                    //     console.log(JSON.stringify(result));
+                    // });
 
                 }
 

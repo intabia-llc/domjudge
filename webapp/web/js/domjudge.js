@@ -139,7 +139,7 @@ function updateClock()
             left = starttime - curtime;
         }
 
-        if(document.getElementById("timeleft") === null)
+        if ( document.getElementById("timeleft") === null )
         {
             var divNavbarText = document.createElement("div");
             divNavbarText.setAttribute('class', 'navbar-text');
@@ -150,7 +150,6 @@ function updateClock()
             iFasFaClock.setAttribute('class', 'fas fa-clock');
             iFasFaClock.setAttribute('style', 'padding-left: 10px;');
             divNavbarText.appendChild( iFasFaClock );
-
 
             var span = document.createElement("span");
             span.setAttribute('id', 'timeleft');
@@ -171,7 +170,8 @@ function updateClock()
     }
 	if ( left ) {
         if ( left > 24*60*60 ) {
-            var d = Math.floor(left/(24*60*60));
+            var dd = Math.floor(left/(24*60*60));
+            var d = " " + dd;
 			fmt += d + "d ";
 			left -= d * 24*60*60;
 		}
@@ -191,7 +191,7 @@ function updateClock()
 		fmt += left;
 	}
 
-    timeleft.innerHTML = what + fmt;
+    document.getElementById("timeleft").innerHTML = what + fmt;
 }
 
 function updateTimer()
@@ -231,7 +231,12 @@ function updateTimer()
         fmt += left;
     }
 
-    contesttimeleftelt.innerHTML = what + fmt;
+    if ( what === "" ) {
+        console.log("WHAT IS EMPTY");
+        reloadPage();
+    } else {
+        contesttimeleftelt.innerHTML = what + fmt;
+    }
 }
 
 function setCookie(name, value)

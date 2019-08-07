@@ -33,11 +33,11 @@
                 </td>
                 <td>
                     {% if training.activatetime < date().timestamp and training.starttime > date().timestamp %}
-                        status1
+                        Coming soon
                     {% elseif training.starttime < date().timestamp and training.endtime > date().timestamp %}
-                        status2
-                    {% elseif training.endtime < date().timestamp and training.deactivatetime > date().timestamp %}
-                        status3
+                        Running
+                    {% elseif training.endtime < date().timestamp %}
+                        Finished
                     {% endif %}
                 </td>
                 <td>

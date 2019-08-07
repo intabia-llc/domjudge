@@ -15,7 +15,6 @@
     var starttime = {{ contest.starttime|default(-1) }};
     var endtime = {{ contest.endtime|default(-1) }};
     var timeleftelt = document.getElementById("timeleft");
-    var timerId = document.getElementById("timerId");
 
     var intervalClockId = setInterval(function () {
         updateClock();
