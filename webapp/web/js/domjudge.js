@@ -131,43 +131,16 @@ function updateClock()
 	var fmt = "";
 	var left = 0;
 	var what = "";
-	if (timerId === null || document.getElementById("timeleft") === null)
-	{
-        if (curtime >= starttime && curtime < endtime) {
-            left = endtime - curtime;
-        } else if (curtime >= activatetime && curtime < starttime) {
-            left = starttime - curtime;
-        }
-
-        if ( document.getElementById("timeleft") === null )
-        {
-            var divNavbarText = document.createElement("div");
-            divNavbarText.setAttribute('class', 'navbar-text');
-            divNavbarText.setAttribute('style', 'white-space:nowrap;');
-            timerId.appendChild( divNavbarText );
-
-            var iFasFaClock = document.createElement("i");
-            iFasFaClock.setAttribute('class', 'fas fa-clock');
-            iFasFaClock.setAttribute('style', 'padding-left: 10px;');
-            divNavbarText.appendChild( iFasFaClock );
-
-            var span = document.createElement("span");
-            span.setAttribute('id', 'timeleft');
-            divNavbarText.appendChild( span );
-
-        }
-    } else {
-        if (timeleft.innerHTML === 'start delayed' || timeleft.innerHTML === 'no contest') {
-            what = timeleft.innerHTML;
-        } else if (curtime >= starttime && curtime < endtime) {
-            left = endtime - curtime;
-        } else if (curtime >= activatetime && curtime < starttime) {
-            left = starttime - curtime;
-            what = "time to start: ";
-        } else {
-            what = "contest over";
-        }
-    }
+	if (timeleft.innerHTML === 'start delayed' || timeleft.innerHTML === 'no contest') {
+	    what = timeleft.innerHTML;
+	} else if (curtime >= starttime && curtime < endtime) {
+	    left = endtime - curtime;
+	} else if (curtime >= activatetime && curtime < starttime) {
+	    left = starttime - curtime;
+	    what = "time to start: ";
+	} else {
+	    what = "contest over";
+	}
 	if ( left ) {
         if ( left > 24*60*60 ) {
             var dd = Math.floor(left/(24*60*60));

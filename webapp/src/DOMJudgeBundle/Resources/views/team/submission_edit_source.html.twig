@@ -173,137 +173,35 @@
                     let refreshPostUrl = "{{ path('details', {'submitId': 0 }) }}";
                     let postUrl = refreshPostUrl.replace('0', submitId);
 
-                    $.ajax({
-                        url: postUrl,
-                        success: function (details) {
+                    $.post(postUrl, async function (details) {
 
-                            let content = details.content;
+                        let content = details.content;
 
-                            let result = details.result;
-                            if (content !== null) {
+                        let result = details.result;
+                        if (content !== null) {
 
-                                document.getElementById("details").innerHTML = "<div id=\"content\">" + content + "</div>";
-                                if (result) {
+                            $("#details").html("");
+                            $("#details").append("<div id=\"content\">" + content + "</div>");
 
-                                    $("#ajax_submit_btn").attr("disabled", "true");
-                                    //
-                                    $('#exampleModal').modal('toggle');
-                                    $('#exampleModal').modal('show');
-                                    $('#exampleModal').modal('hide');
+                            if (result) {
 
-                                }
+                                $("#ajax_submit_btn").attr("disabled", "true");
 
-                                if (intervalId !== null) {
-                                    console.log("clearInterval", intervalId);
+                                $('#exampleModal').modal('toggle');
+                                $('#exampleModal').modal('show');
+                                $('#exampleModal').modal('hide');
 
-                                    clearInterval(intervalId);
-                                    intervalId = null;
-                                    submitId = null;
-                                    document.getElementById("timerId").innerHTML = "";
-                                }
+                            }
+
+                            if (intervalId !== null) {
+                                console.log("clearInterval", intervalId);
+
+                                clearInterval(intervalId);
+                                intervalId = null;
+                                submitId = null;
                             }
                         }
                     });
-                    // $.post(postUrl, async function (details) {
-                    //
-                    //     let content = details.content;
-                    //
-                    //     let result = details.result;
-                    //     if (content !== null) {
-                    //
-                    //         $("#details").html("");
-                    //
-                    //         $("#details").append("<div id=\"content\">" + content + "</div>");
-                    //
-                    //         if (result) {
-                    //
-                    //             $("#ajax_submit_btn").attr("disabled", "true");
-                    //
-                    //             $('#exampleModal').modal('toggle');
-                    //             $('#exampleModal').modal('show');
-                    //             $('#exampleModal').modal('hide');
-                    //
-                    //         }
-                    //
-                    //         if (intervalId !== null) {
-                    //             console.log("clearInterval", intervalId);
-                    //
-                    //             clearInterval(intervalId);
-                    //             intervalId = null;
-                    //             submitId = null;
-                    //             // $('#timerId').load('#timerId');
-                    //
-                    //             $('#timerId').html("");
-                                // $('#timeleft').html("");
-
-                                // $("#timerId").refresh();
-
-
-                                {#let timerPostUrl = "{{ path('timer')}}";#}
-
-                                // $.post(timerPostUrl, function (timerResponse) {
-
-                                // let innerTimer = document.getElementById("timerId").innerHTML;
-                                //     console.log("MESSAGE = " + document.getElementById("timerId").innerHTML);
-
-                                // $('#timerId').html("            var divNavbarText = document.createElement(\"div\");\n" +
-                                //     "            divNavbarText.setAttribute('class', 'navbar-text');\n" +
-                                //     "            divNavbarText.setAttribute('style', 'white-space:nowrap;');\n" +
-                                //     "            timerId.appendChild( divNavbarText );\n" +
-                                //     "\n" +
-                                //     "            var iFasFaClock = document.createElement(\"i\");\n" +
-                                //     "            iFasFaClock.setAttribute('class', 'fas fa-clock');\n" +
-                                //     "            iFasFaClock.setAttribute('style', 'padding-left: 10px;');\n" +
-                                //     "            divNavbarText.appendChild( iFasFaClock );\n" +
-                                //     "\n" +
-                                //     "\n" +
-                                //     "            var span = document.createElement(\"span\");\n" +
-                                //     "            span.setAttribute('id', 'timeleft');\n" +
-                                //     "            divNavbarText.appendChild( span );\n");
-
-                                // document.getElementById('timerId').html("            var divNavbarText = document.createElement(\"div\");\n" +
-                                //     "            divNavbarText.setAttribute('class', 'navbar-text');\n" +
-                                //     "            divNavbarText.setAttribute('style', 'white-space:nowrap;');\n" +
-                                //     "            timerId.appendChild( divNavbarText );\n" +
-                                //     "\n" +
-                                //     "            var iFasFaClock = document.createElement(\"i\");\n" +
-                                //     "            iFasFaClock.setAttribute('class', 'fas fa-clock');\n" +
-                                //     "            iFasFaClock.setAttribute('style', 'padding-left: 10px;');\n" +
-                                //     "            divNavbarText.appendChild( iFasFaClock );\n" +
-                                //     "\n" +
-                                //     "\n" +
-                                //     "            var span = document.createElement(\"span\");\n" +
-                                //     "            span.setAttribute('id', 'timeleft');\n" +
-                                //     "            divNavbarText.appendChild( span );\n");
-
-                                // document.getElementById('timerId').html(innerTimer);
-
-                                // document.getElementById('timeleft').html(document.getElementById("timeleft").innerHTML);
-
-
-
-                                {#let timerPostUrl = "{{ path('timer')}}";#}
-
-                                {#// setInterval(#}
-                                {#$.post(timerPostUrl, function (timerResponse) {#}
-                                    {#console.log("RESPONSE = " + timerResponse);#}
-                                    {#// $('#timerId').innerHTML = timerResponse;#}
-                                {#});#}
-                                    // , 1000);
-
-
-                                // $('span#timeleft').html("");
-
-                                // document.getElementById("timeleft").innerHTML = "";
-
-                                // });
-
-                    //         }
-                    //     }
-                    // }).fail(function (result) {
-                    //     console.log(JSON.stringify(result));
-                    // });
-
                 }
 
                 function editorField() {

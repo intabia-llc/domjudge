@@ -165,23 +165,6 @@ class SubmissionController extends BaseController
         }
     }
 
-
-    /**
-     * @Route("/timer", name="timer")
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function updateTimer(Request $request)
-    {
-        $user = $this->dj->getUser();
-        $team = $user->getTeam();
-        $contest = $this->dj->getCurrentContest($team->getTeamid());
-        return $this->render('@DOMJudge/partials/menu_countdown.html.twig', [
-            'contest' => $contest
-        ]);
-
-    }
-
     /**
      * @Route("/submission/details/{submitId}", name="details", requirements={"submitId": "\d+"})
      * @param Request $request
@@ -245,14 +228,13 @@ class SubmissionController extends BaseController
         ];
 
         $correct = false;
-        error_log("RESULT : " . $judging->getResult());
         if (empty($judging->getResult())) {
             return $this->json(["content" => null]);
         }
         if ($judging->getResult() === 'correct') {
             $correct = true;
         }
-        return $this->json(["content" => $this->render('@DOMJudge/team/submission_team.html.twig', $data)->getContent(),
+        return $this->json(["content" => $this->render('@DOMJudge/team/partials/submission_team.html.twig', $data)->getContent(),
             "result" => $correct]);
 
     }
