@@ -162,42 +162,6 @@ class MiscController extends BaseController
             $data['clarificationRequests'] = $clarificationRequests;
             $data['categories']            = $this->dj->dbconfig_get('clar_categories');
         }
-//
-//        /** @var Notification[] $notification */
-//        $notification = $this->em->createQueryBuilder()
-//            ->from('DOMJudgeBundle:Notification', 'n')
-//            ->select('n')
-//            ->andWhere('n.userid = :userid')
-//            ->andWhere('n.cid = :cid')
-//            ->setParameter(':userid', $user->getUserid())
-//            ->setParameter(':cid', $contest->getCid())
-//            ->addOrderBy('n.cid', 'DESC')
-//            ->getQuery()
-//            ->getResult();
-//
-//        error_log("NOTIFICATION" . empty($notification) );
-//
-//        if(empty($notification) && $scoreboard !== null) {
-//            error_log("NOTIFICATION IS NOT EMPTY" );
-//
-//            $count = 0;
-//            $probCount = 0;
-//            foreach ($scoreboard->getScores() as $score) {
-//                foreach ($scoreboard->getProblems() as $problem) {
-//                    $probCount = $probCount + 1;
-//                    if ($scoreboard->getMatrix()[$score->getTeam()->getTeamid()][$problem->getProbid()]) {
-//                        $count = $count + 1;
-//                    }
-//                }
-//            }
-//
-//            if ($count === $probCount) {
-//                $this->notificationService->sendMessage($user, 'Поздравление',
-//                    $this->renderView('@DOMJudge/jury/final_message.html.twig', ['name' => $user->getUsername()]),
-//                    $contest->getCid());
-//            }
-//        }
-
 
         if ($request->isXmlHttpRequest()) {
             $data['ajax'] = true;
@@ -225,6 +189,17 @@ class MiscController extends BaseController
         return $this->dj->setCookie('domjudge_problemid', '', 0, null, '',
             false, false, $this->render('@DOMJudge/team/partials/contest.html.twig', $data));
 
+    }
+
+    /**
+     * @Route("/instruction", name="instruction_index")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function instructionAction(Request $request)
+    {
+        return $this->dj->setCookie('domjudge_problemid', '', 0, null, '',
+            false, false, $this->render('@DOMJudge/team/partials/instruction.html.twig'));
     }
 
 

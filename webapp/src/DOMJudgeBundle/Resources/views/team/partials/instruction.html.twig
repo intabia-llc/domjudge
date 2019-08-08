@@ -1,0 +1,116 @@
+{% extends "@DOMJudge/team/base.html.twig" %}
+{% import _self as self %}
+
+{% block content %}
+
+    <div class="container" style="width: 1300px;">
+    <h1 class="center" style="margin-bottom: 5px; margin-top: 5px; text-align: center">Инструкция</h1>
+
+        <h4>Меню</h4>
+        <img src="{{ asset('images/teams/screens/screen_menu.png') }}" alt="Menu" height="45" width="1200"
+             style="margin-bottom: 5px; margin-top: 5px">
+
+        <p style="width: 1300px">
+            Меню содержит следующие пункты:
+        <ul style="width: 1300px">
+            <li>
+                Логотип проекта
+            <img src="{{ asset('images/teams/screens/logo.png') }}" alt="<in.code>" height="25" width="60"
+                 style="margin-bottom: 5px; margin-top: 5px">
+                , нажав на который Вы перейдёте на главную страницу тренинга со списком задач.
+            </li>
+            <li>
+                Таймер обратного отсчёта
+                <img src="{{ asset('images/teams/screens/timer.png') }}" alt="timer" height="25" width="75"
+                 style="margin-bottom: 5px; margin-top: 5px">
+                , который показывает время до окончания тренинга, если тренинг доступен.
+                <br>
+                Если трениг ещё не начат, то таймер показывает время до старта.
+                <br>
+                Если же время отведённое для решения задач уже закончилось, то таймер сообщит об этом.
+            </li>
+            <li>
+                Ссылку с названием текущего тренинга
+                <img src="{{ asset('images/teams/screens/problem_link.png') }}" alt="timer" height="25" width="40"
+                            style="margin-bottom: 5px; margin-top: 5px">
+                , нажав на которую Вы перейдёте на страницу со списком доступных тренингов.
+            </li>
+            <li>
+                Ссылку с названием текущей задачи
+                <img src="{{ asset('images/teams/screens/tasks_link.png') }}" alt="timer" height="25" width="90"
+                            style="margin-bottom: 5px; margin-top: 5px">
+                , нажав на которую Вы перейдёте на страницу со списком задач текущего тренинга.
+            </li>
+            <li>
+                Иконку
+                <img src="{{ asset('images/teams/screens/instruction_link.png') }}" alt="timer" height="25" width="33"
+                     style="margin-bottom: 5px; margin-top: 5px">
+                , нажав на которую Вы перейдёте на эту страницу ;)
+            </li>
+            <li>
+                Кнопку
+                <img src="{{ asset('images/teams/screens/logout.png') }}" alt="timer" height="25" width="55"
+                     style="margin-bottom: 5px; margin-top: 5px">
+                , нажав на которую Вы разлогинетесь.
+            </li>
+        </ul>
+        </p>
+
+        <h4>Экран со списком доступных тренингов</h4>
+        <img src="{{ asset('images/teams/screens/screen_2.png') }}" alt="Menu" height="150" width="1200"
+             style="margin-bottom: 5px; margin-top: 5px">
+
+        <p style="width: 1200px">
+            На экране располагается таблица с доступными тренингами и информацией о них. Для выбора тренинга необходимо нажать на его название.
+        </p>
+
+        <h4>Экран со списком задач выбранного тренинга</h4>
+        <img src="{{ asset('images/teams/screens/screen_tasks.png') }}" alt="Tasks" height="220" width="1200"
+             style="margin-bottom: 5px; margin-top: 5px">
+        <p style="width: 1200px;">
+            На экране располагается таблица с задачами данного тренинга. Для того чтоб перейти к решению задачи необходимо нажать на её название.
+        </p>
+
+        <h4>Экран решения задачи</h4>
+        <img src="{{ asset('images/teams/screens/screen_task.png') }}" alt="Task" height="570" width="1200"
+             style="margin-bottom: 5px; margin-top: 5px">
+
+
+        <p style="width: 1200px">
+            Данный экран содержит текст задачи в виде pdf файла, редактор кода для ввода решения задачи, выбор языка программирования, кнопку для отправки и проверки решения. Над редактором кода располагается вкладка Example, если перейти на эту вкладку, то будет отображен пример кода на выбранном языке программирования. В примере кода показано, как получать входные параметры.
+        </p>
+
+        <img src="{{ asset('images/teams/screens/screen_3.png') }}" alt="Menu" height="270" width="800"
+             style="margin-bottom: 5px; margin-top: 5px">
+
+        <p style="width: 1200px">
+            После того, как кнопка "Verify & Submit" будет нажата, появится дополнительный блок с информацией о проверенном решении задачи.
+        </p>
+
+        <img src="{{ asset('images/teams/screens/screen_1.png') }}" alt="Menu" height="570" width="1200"
+             style="margin-bottom: 5px; margin-top: 5px">
+
+        <p style="width: 1200px">
+            Если решение оказалось некорректным, его можно исправить и снова нажать кнопку "Verify & Submit".
+            Если задача была верно решена, то Вы увидете окно с поздравлением! Данную задачу решать больше нельзя, переходите к следующей.
+        </p>
+
+        <img src="{{ asset('images/teams/screens/screen_5.png') }}" alt="Menu" height="200" width="500"
+             style="margin-bottom: 5px; margin-top: 5px">
+
+        <p style="width: 1200px">
+            После нажатия кнопки "Return to task list" Вы вернётесь на страницу со списком задач. Задачи которые решены верно больше нельзя решать. И если все задачи данного тренинга решены верно, то на экране добавится сообщением с поздравлением! Общее количество набранных баллов за задачи можно увидеть на данном экране под списком задач.
+        </p>
+
+        <img src="{{ asset('images/teams/screens/screen_6.png') }}" alt="Menu" height="400" width="1200"
+             style="margin-bottom: 5px; margin-top: 5px">
+
+
+
+
+
+    </div>
+
+{% endblock %}
+
+

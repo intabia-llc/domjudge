@@ -173,7 +173,7 @@
                     let refreshPostUrl = "{{ path('details', {'submitId': 0 }) }}";
                     let postUrl = refreshPostUrl.replace('0', submitId);
 
-                    $.post(postUrl, async function (details) {
+                    $.post(postUrl, function (details) {
 
                         let content = details.content;
 
