@@ -1,3 +1,9 @@
+{#<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>#}
+
+<script src="{{ asset('js/enjoyhint/enjoyhint.min.js') }}"></script>
+<script src="{{ asset('js/enjoyhint/hint-sequence.js') }}"></script>
+<link href="{{ asset('js/enjoyhint/enjoyhint.css') }}" rel="stylesheet">
+
 {% if limitToTeams is not defined %}
     {% set limitToTeams = null %}
     {% set limitToTeamIds = null %}
@@ -45,9 +51,9 @@
 <br>
 <div class="container">
     <div class="row">
-    <div class="col-6">
+    <div class="col-6" id="tasks_info">
         <h3>Tasks</h3>
-<table class="scoreboard-team {% if jury %}scoreboard_jury{% endif %}">
+<table id="scoreboard-team" class="scoreboard-team {% if jury %}scoreboard_jury{% endif %}">
 
     {# output table column groups (for the styles) #}
     <colgroup>
@@ -130,7 +136,7 @@
                 {% if jury %}
                     {% set link = path('jury_problem', {'probId': problem.probid}) %}
                 {% elseif problem.problem.hasProblemtext %}
-                    {% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java' }) %}
+                    {% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java', 'tutorialView': 0 }) %}
                     {% set target = '_blank' %}
                 {% endif %}
             {% endif %}
@@ -138,15 +144,17 @@
 
 
             {% for score in scoreboard.scores %}
-
-
                 <td title="problem {{ problem.problem.name }}" scope="col">
 
                     {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
 
-                        <a style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>
+                        <a style="color: #4e555b; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>
                     {% else %}
-                        <a href="{{ path('team_change_problem', {'problemId': problem.probid, 'langId': 'java' }) }}" style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>
+                        {#<a id="problem_link" href="{{ path('team_change_problem', {'problemId': problem.probid, 'langId': 'java', 'tutorialView': 0 }) }}" style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>#}
+                        {#<a id="problem_link" onclick="changeProblem({{ problem.problem.probid }})" style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>#}
+                        <a id="problem_link-{{ problem.problem.probid }}" onclick="changeProblem({{ problem.problem.probid }})"
+                           {#href="{{ path('team_change_problem', {'problemId': problem.probid, 'langId': 'java', 'tutorialView': 0 }) }}" #}
+                           style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>
                     {% endif %}
 
                 </td>
@@ -193,14 +201,17 @@
                     {% set link = path('jury_team', {teamId: score.team.teamid, restrict: restrict}) %}
                 {% endif %}
 
-                <td>
-                    {% if numberOfSubmissions != '0' %}
-                        <a {% if link %}href="{{ link }}"{% endif %}>
-                            <div class="{{ scoreCssClass }}">
-                                <p> </p>
-                            </div>
-                        </a>
-                    {% endif %}
+                <td height="50px">
+                    <a {% if link %}href="{{ link }}"{% endif %}>
+                        <span>
+                            {% if scoreboard.matrix[score.team.teamid][problem.probid].isCorrect %}
+                                {% set totalScore = score.numberOfPoints %}
+                                <img src="{{ asset('images/teams/resolved.png') }}" width="40px" height="40px"/>
+                            {% else %}
+                                <img src="{{ asset('images/teams/not_resolved.png') }}" width="40px" height="40px"/>
+                            {% endif %}
+                        </span>
+                    </a>
                 </td>
 
                 </tr>
@@ -296,9 +307,40 @@
     {% endfor %}
 </style>
 <script>
+
+    var view = {{ tutorial_view }};
+
+    console.log("view = " + view);
+    if ( view === 1)
+    {
+        problemsQuickTipsStart();
+    }
+
     document.querySelectorAll(".forceWidth:not(.toolong)").forEach(el => {
         if (el instanceof Element && el.scrollWidth > el.offsetWidth) {
             el.classList.add("toolong");
         }
     });
+
+    function changeProblem(probid) {
+        var postPath = "{{ path('team_change_problem', {'problemId': 0, 'langId': 'java', 'tutorialView': 8 }) }}";
+
+        let refreshPostUrl = postPath.replace('0', probid);
+
+        var problemLink = document.getElementById("problem_link-"+probid);
+
+        console.log("problemLink = " + problemLink.innerText);
+
+        if ( document.getElementById("enjoyhint_label") != null ) {
+            console.log("enjoyhint_label is not null");
+            refreshPostUrl = refreshPostUrl.replace('8', 1);
+        } else {
+            refreshPostUrl = refreshPostUrl.replace('8', 0);
+        }
+
+        console.log("POST URL = " + refreshPostUrl);
+
+        problemLink.setAttribute('href', refreshPostUrl );
+
+    }
 </script>

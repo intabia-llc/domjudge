@@ -147,7 +147,7 @@ class ClarificationController extends BaseController
             $this->eventLogService->log('clarification', $newClarification->getClarid(), 'create', $contest->getCid());
 
             $this->addFlash('success', 'Clarification sent to the jury');
-            return $this->redirectToRoute('team_index');
+            return $this->redirectToRoute('team_index', ['tutorialView' => 0]);
         }
 
         if ($clarification === null) {
@@ -240,7 +240,7 @@ class ClarificationController extends BaseController
             $this->eventLogService->log('clarification', $newClarification->getClarid(), 'create', $contest->getCid());
 
             $this->addFlash('success', 'Clarification sent to the jury');
-            return $this->redirectToRoute('team_index');
+            return $this->redirectToRoute('team_index', ['tutorialView' => 0]);
         }
 
         $data = [

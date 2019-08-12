@@ -25,7 +25,7 @@
 {% block messages %}{% endblock %}
 {% block content %}
     <div data-ajax-refresh-target data-ajax-refresh-after="setFlashAndProgress" data-ajax-refresh-before="saveFlash">
-        {% include '@DOMJudge/team/partials/index_content.html.twig' %}
+        {% include '@DOMJudge/team/partials/index_content.html.twig' with {tutorial_view: tutorial_view} %}
     </div>
 {% endblock %}
 

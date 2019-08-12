@@ -4,6 +4,9 @@
 {% block extrahead %}
     {{ parent() }}
     <script type="text/javascript" src="{{ asset('js/ace/ace.js') }}" charset="utf-8"></script>
+    <script src="{{ asset('js/enjoyhint/enjoyhint.min.js') }}"></script>
+    <script src="{{ asset('js/enjoyhint/hint-sequence.js') }}"></script>
+    <link href="{{ asset('js/enjoyhint/enjoyhint.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -17,7 +20,7 @@
         <div class="col" style="height: 100%; ">
 
             <h3 class="teamoverview" style="margin-top: 10px">Problem text</h3>
-            <embed src="/team/problems/{{ data.problem.probid }}/text" class="col" style="height: 1200px"
+            <embed id="problem-text" src="/team/problems/{{ data.problem.probid }}/text" class="col" style="height: 1200px"
                    type="application/pdf">
 
         </div>
@@ -79,6 +82,10 @@
                 </div>
             </div>
             <script>
+                if ( {{ data.tutorial_view }}) {
+                    editQuickTipsStart();
+
+                }
 
                 function getAceLanguage(language) {
                     switch (language) {
@@ -124,7 +131,7 @@
             <div id="details" style="margin-top: 15px"></div>
             <script>
                 function back() {
-                    location.href = "{{ path('team_index') }}";
+                    location.href = "{{ path('team_index', {'tutorialView': 0}) }}";
                 }
 
                 var intervalId = null;

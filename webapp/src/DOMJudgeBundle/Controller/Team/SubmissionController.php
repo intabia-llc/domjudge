@@ -152,7 +152,7 @@ class SubmissionController extends BaseController
                 } else {
                     $this->addFlash('danger', $message);
                 }
-                return $this->redirectToRoute('team_index');
+                return $this->redirectToRoute('team_index', ['tutorialView' => 0]);
             }
         }
 
@@ -370,15 +370,18 @@ class SubmissionController extends BaseController
     }
 
     /**
-     * @Route("/submission/source/{probId}/{langId}", name="code_editor", requirements={"probId": "\d+", "langId": "\S+"})
+     * @Route("/submission/source/{probId}/{langId}/{tutorialView}", name="code_editor", requirements={"probId": "\d+", "langId": "\S+", "tutorialView": "\S+"})
      * @param int $probId
      * @param string $langId
      * @param Request $request
      * @param RouterInterface $router
+     * @param int $tutorialView
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function editorAction(int $probId, string $langId, Request $request, RouterInterface $router)
+    public function editorAction(int $probId, string $langId, Request $request, RouterInterface $router, int $tutorialView)
     {
+
+        error_log("2222222222222222222222222222222222222222222 = " . $tutorialView);
         /** @var Language $languages */
         $languages = $this->em->getRepository(Language::class)->findBy(['allowSubmit' => true]);
 
@@ -398,7 +401,8 @@ class SubmissionController extends BaseController
             'user' => $user,
             'team' => $team,
             'contest' => $contest,
-            'source_code' => $file->getSourcecode()
+            'source_code' => $file->getSourcecode(),
+            'tutorial_view' => $tutorialView,
         ];
 
         $formBuilder = $this->createFormBuilder($data)
@@ -411,14 +415,14 @@ class SubmissionController extends BaseController
                         ->orderBy('lang.name');
                 }
             ])
-            ->setAction($this->generateUrl('team_index'));
+            ->setAction($this->generateUrl('team_index', ['tutorialView' => 0]));
 
         $form = $formBuilder
             ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
-                'langId' => $langId]))
+                'langId' => $langId, 'tutorialView' => $tutorialView]))
             ->add('source', TextareaType::class, ['required' => false])
             ->setAction($this->generateUrl('code_editor', ['probId' => $probId,
-                'langId' => $langId]))
+                'langId' => $langId, 'tutorialView' => $tutorialView]))
             ->add('example', TextareaType::class, ['required' => false])
             ->getForm();
 

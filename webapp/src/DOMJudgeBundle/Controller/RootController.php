@@ -43,12 +43,12 @@ class RootController extends BaseController
                 return $this->redirectToRoute('jury_index');
             }
             if ( $this->dj->checkrole('team', false) ) {
-                return $this->redirectToRoute('team_index');
+                return $this->redirectToRoute('team_index', ['tutorialView' => 0]);
             }
             if ( $this->dj->checkrole('balloon') ) {
                 return $this->redirectToRoute('jury_balloons');
             }
         }
-        return $this->redirectToRoute('team_index');
+        return $this->redirectToRoute('team_index', ['tutorialView' => 0]);
     }
 }

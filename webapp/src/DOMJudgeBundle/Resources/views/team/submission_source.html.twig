@@ -44,7 +44,7 @@
                 function dataSelect(f) {
                     let n = f.currentLang.selectedIndex;
                     let current = f.currentLang.options[n].value;
-                    let url = '{{ path('code_editor', {probId: problem.probid, langId: curLang }) }}';
+                    let url = '{{ path('code_editor', {probId: problem.probid, langId: curLang, tutorialView: 0 }) }}';
                     let array = url.split("/");
                     array[array.length - 1] = current;
 
@@ -87,7 +87,7 @@
                         alert("form: " + f.editor);
                         let n = f.currentLang.selectedIndex;
                         let current = f.currentLang.options[n].value;
-                        let url = '{{ path('code_editor', {probId: problem.probid, langId: curLang }) }}';
+                        let url = '{{ path('code_editor', {probId: problem.probid, langId: curLang, tutorialView: 0 }) }}';
                         let array = url.split("/");
                         array[array.length - 1] = current;
 

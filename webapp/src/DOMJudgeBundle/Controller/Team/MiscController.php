@@ -84,14 +84,16 @@ class MiscController extends BaseController
     }
 
     /**
-     * @Route("", name="team_index")
+     * @Route("/home/{tutorialView}", name="team_index", requirements={"tutorialView": "\S+"})
      * @param Request $request
+     * @param int $tutorialView
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function homeAction(Request $request)
+    public function homeAction(Request $request, int $tutorialView)
     {
+        error_log("55555555555555555555555555 = " .$tutorialView);
         $user    = $this->dj->getUser();
         $team    = $user->getTeam();
         $teamId  = $team->getTeamid();
@@ -102,7 +104,7 @@ class MiscController extends BaseController
             'contest' => $contest,
             'refresh' => [
                 'after' => 30,
-                'url' => $this->generateUrl('team_index'),
+                'url' => $this->generateUrl('team_index', ['tutorialView' => $tutorialView]),
                 'ajax' => true,
             ],
             'maxWidth' => $this->dj->dbconfig_get('team_column_width', 0),
@@ -119,6 +121,8 @@ class MiscController extends BaseController
             $data['scoreInSeconds']       = $this->dj->dbconfig_get('score_in_seconds', false);
             $data['verificationRequired'] = $this->dj->dbconfig_get('verification_required', false);
             $data['limitToTeams']         = [$team];
+            $data['tutorial_view']        = $tutorialView;
+
             // We need to clear the entity manager, because loading the team scoreboard seems to break getting submission
             // contestproblems for the contest we get the scoreboard for
             $this->em->clear();
@@ -204,34 +208,38 @@ class MiscController extends BaseController
 
 
     /**
-     * @Route("/change-contest/{contestId}", name="team_change_contest",
-     *         requirements={"contestId": "-?\d+"})
-     * @param Request         $request
+     * @Route("/change-contest/{contestId}/{tutorialView}", name="team_change_contest",
+     *         requirements={"contestId": "-?\d+", "tutorialView": "\S+"})
+     * @param Request $request
      * @param RouterInterface $router
-     * @param int             $contestId
+     * @param int $contestId
+     * @param int $tutorialView
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function changeContestAction(Request $request, RouterInterface $router, int $contestId)
+    public function changeContestAction(Request $request, RouterInterface $router, int $contestId, int $tutorialView)
     {
+        error_log("!!!!!!!!!!!!!!!!!!!!!!!!!!! tutorial view = ". $tutorialView);
         if ($this->isLocalReferrer($router, $request)) {
             $response = new RedirectResponse($request->headers->get('referer'));
         } else {
-            $response = $this->redirectToRoute('team_index');
+            $response = $this->redirectToRoute('team_index', ['tutorialView' => $tutorialView]);
         }
         return $this->dj->setCookie('domjudge_cid', (string)$contestId, 0, null, '', false, false,
                                                  $response);
     }
 
     /**
-     * @Route("/change-problem/{problemId}/{langId}", name="team_change_problem",
-     *         requirements={"problemId": "-?\d+", "langId": "\S+"})
+     * @Route("/change-problem/{problemId}/{langId}/{tutorialView}", name="team_change_problem",
+     *         requirements={"problemId": "-?\d+", "langId": "\S+", "tutorialView": "\S+"})
+     * @param Request $request
      * @param int $problemId
      * @param string $langId
+     * @param int $tutorialView
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function changeProblemAction(int $problemId, string $langId)
+    public function changeProblemAction(Request $request, int $problemId, string $langId, int $tutorialView)
     {
-        $response = $this->redirectToRoute('code_editor',[ 'probId' => $problemId, 'langId' => $langId ]);
+        $response = $this->redirectToRoute('code_editor',[ 'probId' => $problemId, 'langId' => $langId, 'tutorialView' => $tutorialView ]);
         return $this->dj->setCookie('domjudge_problemid', (string)$problemId, 0, null, '',
             false, false, $response);
     }
@@ -243,7 +251,7 @@ class MiscController extends BaseController
      */
     public function changeContest(int $contestId)
     {
-        $response = $this->redirectToRoute('team_index');
+        $response = $this->redirectToRoute('team_index', ['tutorialView' => 0]);
         return $this->dj->setCookie('domjudge_cid', (string)$contestId, 0, null, '', false, false,
                                                  $response);
     }

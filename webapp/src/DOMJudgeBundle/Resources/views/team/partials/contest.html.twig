@@ -3,7 +3,7 @@
 
 {% block content %}
 
-    <table class="scoreboard-team center ">
+    <table id="trainings" class="scoreboard-team center ">
 
         <thead>
 
@@ -28,7 +28,8 @@
                     {{ id }}
                 </td>
                 <td>
-                    <a href="{{ path('team_change_contest', {'contestId': training.cid}) }}"
+                    <a class="training_link" id="training_link-{{ training.cid }}" onclick="changeTraining({{ training.cid }})"
+                       {#href="{{ path('team_change_contest', {'contestId': training.cid}) }}"#}
                        style="color: #a93795">{{ training.name }}</a>
                 </td>
                 <td>
@@ -61,6 +62,32 @@
         {% endfor %}
         </tbody>
     </table>
+
+    <script>
+
+        function changeTraining(cid) {
+            var postPath = "{{ path('team_change_contest', {'contestId': 0, 'tutorialView': 8}) }} ";
+
+            postPath = postPath.replace('0', cid);
+
+            var trainingLink = document.getElementById("training_link-"+ cid);
+
+            console.log("trainingLink = " + trainingLink.innerText);
+            var refreshPostUrl;
+
+            if ( document.getElementById("enjoyhint_label") != null ) {
+                console.log("enjoyhint_label is not null");
+                refreshPostUrl = postPath.replace('8', 1);
+            } else {
+                refreshPostUrl = postPath.replace('8', 0);
+            }
+
+            console.log("POST URL = " + refreshPostUrl);
+
+            trainingLink.setAttribute('href', refreshPostUrl );
+
+        }
+    </script>
 
 {% endblock %}
 

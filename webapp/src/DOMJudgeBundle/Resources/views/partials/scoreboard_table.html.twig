@@ -77,7 +77,7 @@
                     {% if jury %}
                         {% set link = path('jury_problem', {'probId': problem.probid}) %}
                     {% elseif problem.problem.hasProblemtext %}
-                        {% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java' }) %}
+                        {% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java', 'tutorialView': 0}) %}
                         {% set target = '_blank' %}
                     {% endif %}
                 {% endif %}
