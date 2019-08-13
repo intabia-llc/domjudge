@@ -93,7 +93,6 @@ class MiscController extends BaseController
      */
     public function homeAction(Request $request, int $tutorialView)
     {
-        error_log("55555555555555555555555555 = " .$tutorialView);
         $user    = $this->dj->getUser();
         $team    = $user->getTeam();
         $teamId  = $team->getTeamid();
@@ -218,7 +217,6 @@ class MiscController extends BaseController
      */
     public function changeContestAction(Request $request, RouterInterface $router, int $contestId, int $tutorialView)
     {
-        error_log("!!!!!!!!!!!!!!!!!!!!!!!!!!! tutorial view = ". $tutorialView);
         if ($this->isLocalReferrer($router, $request)) {
             $response = new RedirectResponse($request->headers->get('referer'));
         } else {

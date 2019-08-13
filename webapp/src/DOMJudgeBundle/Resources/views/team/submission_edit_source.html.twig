@@ -4,9 +4,7 @@
 {% block extrahead %}
     {{ parent() }}
     <script type="text/javascript" src="{{ asset('js/ace/ace.js') }}" charset="utf-8"></script>
-    <script src="{{ asset('js/enjoyhint/enjoyhint.min.js') }}"></script>
     <script src="{{ asset('js/enjoyhint/hint-sequence.js') }}"></script>
-    <link href="{{ asset('js/enjoyhint/enjoyhint.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -82,6 +80,9 @@
                 </div>
             </div>
             <script>
+
+                document.body.style.overflow = "scroll";
+
                 if ( {{ data.tutorial_view }}) {
                     editQuickTipsStart();
 

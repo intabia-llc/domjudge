@@ -152,7 +152,7 @@
                     {% else %}
                         {#<a id="problem_link" href="{{ path('team_change_problem', {'problemId': problem.probid, 'langId': 'java', 'tutorialView': 0 }) }}" style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>#}
                         {#<a id="problem_link" onclick="changeProblem({{ problem.problem.probid }})" style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>#}
-                        <a id="problem_link-{{ problem.problem.probid }}" onclick="changeProblem({{ problem.problem.probid }})"
+                        <a class="problem_link" href="" id="problem_link-{{ problem.problem.probid }}" onclick="changeProblem({{ problem.problem.probid }})"
                            {#href="{{ path('team_change_problem', {'problemId': problem.probid, 'langId': 'java', 'tutorialView': 0 }) }}" #}
                            style="color: #a93795; font-size: 16px; min-width: 250px; text-align: left" >{{ problem.problem.name }}</a>
                     {% endif %}

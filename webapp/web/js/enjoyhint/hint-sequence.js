@@ -21,7 +21,7 @@ var problems_script_steps = [
         'next .scoreboard-team' : 'Information about the problems of this training.',
     },
     {
-        'click #problem_link-1' : 'Clicking on the problem name the screen will open to solve it',
+        'click .problem_link' : 'Clicking on the problem name the screen will open to solve it',
     }
 ];
 

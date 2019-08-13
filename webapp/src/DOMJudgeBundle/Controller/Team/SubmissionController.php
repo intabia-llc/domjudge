@@ -381,7 +381,6 @@ class SubmissionController extends BaseController
     public function editorAction(int $probId, string $langId, Request $request, RouterInterface $router, int $tutorialView)
     {
 
-        error_log("2222222222222222222222222222222222222222222 = " . $tutorialView);
         /** @var Language $languages */
         $languages = $this->em->getRepository(Language::class)->findBy(['allowSubmit' => true]);
 
