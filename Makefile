@@ -39,15 +39,6 @@ install:
 all: build
 build: domserver judgehost
 
-ifeq ($(SUBMITCLIENT_ENABLED),yes)
-build: submitclient
-endif
-
-ifeq ($(BUILD_DOCS),yes)
-all: docs
-dist: distdocs
-endif
-
 # MAIN TARGETS
 domserver judgehost docs submitclient: paths.mk config
 submitclient:
