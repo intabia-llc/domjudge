@@ -1,0 +1,21 @@
+<div class="navbar-text" style="white-space:nowrap;">
+    <span id="contesttimer">
+        {%- if contest is null -%}
+          no contest
+        {%- else -%}
+            {{ contest.countdown }}
+        {%- endif -%}
+    </span>
+</div>
+
+<script>
+    var activatetime = {{ contest.activatetime|default(-1) }};
+    var starttime = {{ contest.starttime|default(-1) }};
+    var endtime = {{ contest.endtime|default(-1) }};
+    var contesttimeleftelt = document.getElementById("contesttimer");
+
+    setInterval(function () {
+        updateTimer();
+    }, 1000);
+
+</script>

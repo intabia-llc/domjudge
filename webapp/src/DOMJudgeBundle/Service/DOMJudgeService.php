@@ -139,7 +139,7 @@ class DOMJudgeService
                 'c.deactivatetime is null',
                 $qb->expr()->gt('c.deactivatetime', $now)
             ))
-            ->orderBy('c.activatetime');
+            ->orderBy('c.activatetime', 'DESC');
 
         if (!$alsofuture) {
             $qb->andWhere($qb->expr()->lte('c.activatetime', $now));
@@ -173,6 +173,24 @@ class DOMJudgeService
         }
         return null;
     }
+
+
+    /**
+     * Get the currently selected problem
+     * @return Problem|null|object
+     */
+    public function getCurrentProblem()
+    {
+        $selected_probid = $this->request->cookies->get('domjudge_problemid');
+
+        error_log("PROBLEM ID ======> " .$selected_probid);
+        if ($selected_probid == null || $selected_probid == -1) {
+            return null;
+        }
+
+        return $this->em-> getRepository(Problem::class)->find($selected_probid);
+    }
+
 
     /**
      * Get the contest with the given contest ID

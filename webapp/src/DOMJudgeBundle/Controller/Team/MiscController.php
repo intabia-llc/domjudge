@@ -5,12 +5,17 @@ namespace DOMJudgeBundle\Controller\Team;
 use Doctrine\ORM\EntityManagerInterface;
 use DOMJudgeBundle\Controller\BaseController;
 use DOMJudgeBundle\Entity\Clarification;
+use DOMJudgeBundle\Entity\Contest;
 use DOMJudgeBundle\Entity\Language;
+use DOMJudgeBundle\Entity\Notification;
 use DOMJudgeBundle\Form\Type\PrintType;
 use DOMJudgeBundle\Service\DOMJudgeService;
+use DOMJudgeBundle\Service\NotificationService;
 use DOMJudgeBundle\Service\ScoreboardService;
 use DOMJudgeBundle\Service\SubmissionService;
 use DOMJudgeBundle\Utils\Printing;
+use phpDocumentor\Reflection\Types\This;
+use phpDocumentor\Reflection\Types\Integer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -51,32 +56,42 @@ class MiscController extends BaseController
     protected $submissionService;
 
     /**
+     * @var NotificationService
+     */
+    protected $notificationService;
+
+
+    /**
      * MiscController constructor.
-     * @param DOMJudgeService        $dj
+     * @param DOMJudgeService $dj
      * @param EntityManagerInterface $em
-     * @param ScoreboardService      $scoreboardService
-     * @param SubmissionService      $submissionService
+     * @param ScoreboardService $scoreboardService
+     * @param SubmissionService $submissionService
+     * @param NotificationService $notificationService
      */
     public function __construct(
         DOMJudgeService $dj,
         EntityManagerInterface $em,
         ScoreboardService $scoreboardService,
-        SubmissionService $submissionService
+        SubmissionService $submissionService,
+        NotificationService $notificationService
     ) {
-        $this->dj                = $dj;
-        $this->em                = $em;
-        $this->scoreboardService = $scoreboardService;
-        $this->submissionService = $submissionService;
+        $this->dj                  = $dj;
+        $this->em                  = $em;
+        $this->scoreboardService   = $scoreboardService;
+        $this->submissionService   = $submissionService;
+        $this->notificationService = $notificationService;
     }
 
     /**
-     * @Route("", name="team_index")
+     * @Route("/home/{tutorialView}", name="team_index", requirements={"tutorialView": "\S+"})
      * @param Request $request
+     * @param int $tutorialView
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Doctrine\ORM\NoResultException
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function homeAction(Request $request)
+    public function homeAction(Request $request, int $tutorialView)
     {
         $user    = $this->dj->getUser();
         $team    = $user->getTeam();
@@ -88,13 +103,15 @@ class MiscController extends BaseController
             'contest' => $contest,
             'refresh' => [
                 'after' => 30,
-                'url' => $this->generateUrl('team_index'),
+                'url' => $this->generateUrl('team_index', ['tutorialView' => $tutorialView]),
                 'ajax' => true,
             ],
             'maxWidth' => $this->dj->dbconfig_get('team_column_width', 0),
         ];
+        $scoreboard = null;
         if ($contest) {
-            $data['scoreboard']           = $this->scoreboardService->getTeamScoreboard($contest, $teamId, true);
+            $scoreboard = $this->scoreboardService->getTeamScoreboard($contest, $teamId, true);
+            $data['scoreboard']           = $scoreboard;
             $data['showFlags']            = $this->dj->dbconfig_get('show_flags', true);
             $data['showAffiliationLogos'] = $this->dj->dbconfig_get('show_affiliation_logos', false);
             $data['showAffiliations']     = $this->dj->dbconfig_get('show_affiliations', true);
@@ -103,6 +120,8 @@ class MiscController extends BaseController
             $data['scoreInSeconds']       = $this->dj->dbconfig_get('score_in_seconds', false);
             $data['verificationRequired'] = $this->dj->dbconfig_get('verification_required', false);
             $data['limitToTeams']         = [$team];
+            $data['tutorial_view']        = $tutorialView;
+
             // We need to clear the entity manager, because loading the team scoreboard seems to break getting submission
             // contestproblems for the contest we get the scoreboard for
             $this->em->clear();
@@ -155,21 +174,82 @@ class MiscController extends BaseController
         return $this->render('@DOMJudge/team/index.html.twig', $data);
     }
 
+
     /**
-     * @Route("/change-contest/{contestId}", name="team_change_contest",
-     *         requirements={"contestId": "-?\d+"})
-     * @param Request         $request
-     * @param RouterInterface $router
-     * @param int             $contestId
+     * @Route("/contests", name="contest_index")
+     * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function changeContestAction(Request $request, RouterInterface $router, int $contestId)
+    public function contestsAction(Request $request)
+    {
+        $user    = $this->dj->getUser();
+        $team    = $user->getTeam();
+
+        $data['contests']        = $team ? $this->dj->getCurrentContests($user->getTeamid()) : null;
+        $data['current_contest'] =  $team ? $this->dj->getCurrentContest($user->getTeamid()) : null;
+        $data['current_problem'] = null;
+
+        return $this->dj->setCookie('domjudge_problemid', '', 0, null, '',
+            false, false, $this->render('@DOMJudge/team/partials/contest.html.twig', $data));
+
+    }
+
+    /**
+     * @Route("/instruction", name="instruction_index")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function instructionAction(Request $request)
+    {
+        return $this->dj->setCookie('domjudge_problemid', '', 0, null, '',
+            false, false, $this->render('@DOMJudge/team/partials/instruction.html.twig'));
+    }
+
+
+    /**
+     * @Route("/change-contest/{contestId}/{tutorialView}", name="team_change_contest",
+     *         requirements={"contestId": "-?\d+", "tutorialView": "\S+"})
+     * @param Request $request
+     * @param RouterInterface $router
+     * @param int $contestId
+     * @param int $tutorialView
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function changeContestAction(Request $request, RouterInterface $router, int $contestId, int $tutorialView)
     {
         if ($this->isLocalReferrer($router, $request)) {
             $response = new RedirectResponse($request->headers->get('referer'));
         } else {
-            $response = $this->redirectToRoute('public_index');
+            $response = $this->redirectToRoute('team_index', ['tutorialView' => $tutorialView]);
         }
+        return $this->dj->setCookie('domjudge_cid', (string)$contestId, 0, null, '', false, false,
+                                                 $response);
+    }
+
+    /**
+     * @Route("/change-problem/{problemId}/{langId}/{tutorialView}", name="team_change_problem",
+     *         requirements={"problemId": "-?\d+", "langId": "\S+", "tutorialView": "\S+"})
+     * @param Request $request
+     * @param int $problemId
+     * @param string $langId
+     * @param int $tutorialView
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function changeProblemAction(Request $request, int $problemId, string $langId, int $tutorialView)
+    {
+        $response = $this->redirectToRoute('code_editor',[ 'probId' => $problemId, 'langId' => $langId, 'tutorialView' => $tutorialView ]);
+        return $this->dj->setCookie('domjudge_problemid', (string)$problemId, 0, null, '',
+            false, false, $response);
+    }
+
+    /**
+     * @Route("/team_contest/{contestId}", name="team_contest", requirements={"contestId": "-?\d+"})
+     * @param int             $contestId
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function changeContest(int $contestId)
+    {
+        $response = $this->redirectToRoute('team_index', ['tutorialView' => 0]);
         return $this->dj->setCookie('domjudge_cid', (string)$contestId, 0, null, '', false, false,
                                                  $response);
     }

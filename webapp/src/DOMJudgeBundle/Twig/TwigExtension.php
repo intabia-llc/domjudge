@@ -122,6 +122,7 @@ class TwigExtension extends \Twig\Extension\AbstractExtension implements \Twig\E
             'external_ccs_submission_url' => $this->dj->dbconfig_get('external_ccs_submission_url', ''),
             'current_team_contest' => $team ? $this->dj->getCurrentContest($user->getTeamid()) : null,
             'current_team_contests' => $team ? $this->dj->getCurrentContests($user->getTeamid()) : null,
+            'current_problem' => $this->dj->getCurrentProblem(),
             'submission_languages' => $this->em->createQueryBuilder()
                 ->from('DOMJudgeBundle:Language', 'l')
                 ->select('l')
@@ -761,7 +762,7 @@ JS;
         }
         if ($this->printtime(Utils::now(), '%Y%m%d') == $this->printtime($contest->getStarttime(), '%Y%m%d')) {
             // Today
-            $res .= "at " . $this->printtime($contest->getStarttime());
+            $res .= "at " . substr($contest->getStarttimeString(), 11, 5);
         } else {
             // Print full date
             $res .= "on " . $this->printtime($contest->getStarttime(), '%a %d %b %Y %T %Z');

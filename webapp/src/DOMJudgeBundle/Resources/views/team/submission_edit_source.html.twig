@@ -1,0 +1,341 @@
+{% extends "@DOMJudge/team/base.html.twig" %}
+{% import _self as self %}
+
+{% block extrahead %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('js/ace/ace.js') }}" charset="utf-8"></script>
+    <script src="{{ asset('js/enjoyhint/hint-sequence.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <h2 style="padding-top: 20px">
+        {{ data.problem.name }}
+    </h2>
+
+    <div class="row" style="height: 100%">
+
+        <div class="col" style="height: 100%; ">
+
+            <h3 class="teamoverview" style="margin-top: 10px">Problem text</h3>
+            <embed id="problem-text" src="/team/problems/{{ data.problem.probid }}/text" class="col" style="height: 1200px"
+                   type="application/pdf">
+
+        </div>
+
+        <div class="col">
+            {{ form_start(form) }}
+
+            <h3 class="teamoverview">Problem solution</h3>
+
+            <ul id="editorTitle" class="nav nav-tabs source-tab-nav">
+
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" role="tab" id="code" onclick="editorField()">
+                        Code:
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" role="tab" id="example" onclick="editorField()">
+                        Example:
+                    </a>
+                </li>
+
+            </ul>
+
+            <div class="tab-content source-tab">
+
+                <div class="tab-pane fade show active" id="source_code" role="tabpanel">
+                    {{ file.sourcecode | codeEditor(1, 'java', true, 'form_source') }}
+
+                    <script>
+                        $(function () {
+                            $('#form_source').closest('.form-group').hide();
+                        });
+                    </script>
+                </div>
+
+                <div class="tab-pane fade show active" id="source_example" role="tabpanel" hidden="hidden">
+                    {{ '123123' | codeEditor(2, 'java', false, 'form_source') }}
+
+                    <script>
+                        $(function () {
+                            $('#form_example').closest('.form-group').hide();
+                        });
+                    </script>
+                </div>
+
+            </div>
+
+
+            <div class="row" style="padding-top: 15px">
+                <div class="col-lg-4">
+                    {{ form_widget(form) }}
+                    <button type="button" id="ajax_submit_btn" class="btn-primary btn"
+                            style="background-color: #a93795; border: 0px; color: #fff;" onclick="ajaxSubmitFunc()">
+                        Verify & Submit
+                    </button>
+
+
+                </div>
+            </div>
+            <script>
+
+                document.body.style.overflow = "scroll";
+
+                if ( {{ data.tutorial_view }}) {
+                    editQuickTipsStart();
+
+                }
+
+                function getAceLanguage(language) {
+                    switch (language) {
+                        case 'c':
+                        case 'cpp':
+                        case 'cxx':
+                            return 'c_cpp';
+                        case 'pas':
+                            return 'pascal';
+                        case 'hs':
+                            return 'haskell';
+                        case 'pl':
+                            return 'perl';
+                        case 'bash':
+                            return 'sh';
+                        case 'py2':
+                        case 'py3':
+                            return 'python';
+                        case 'adb':
+                            return 'ada';
+                        case 'plg':
+                            return 'prolog';
+                        case 'rb':
+                            return 'ruby';
+                    }
+                    return language;
+                }
+
+                let selectWithLanguage = document.getElementById('form_language');
+                selectWithLanguage.addEventListener('change', (event) => {
+
+                    let editor = ace.edit("editor1");
+                    let editor2 = ace.edit("editor2");
+                    let language = getAceLanguage(selectWithLanguage.value);
+
+                    editor.getSession().setMode(`ace/mode/${language}`);
+                    editor2.getSession().setMode(`ace/mode/${language}`);
+                    editor2.getSession().setValue(getExample(selectWithLanguage.value));
+                });
+
+            </script>
+
+            <div id="details" style="margin-top: 15px"></div>
+            <script>
+                function back() {
+                    location.href = "{{ path('team_index', {'tutorialView': 0}) }}";
+                }
+
+                var intervalId = null;
+                var submitId = null;
+
+                async function ajaxSubmitFunc() {
+
+                    console.log("ajaxSubmitFunc");
+
+                    $("#details").html("<div class=\"d-flex justify-content-center\">\n" +
+                        "    \n" +
+                        "  <div class=\"spinner-border\" role=\"status\">\n" +
+                        "    <span class=\"sr-only\">Loading...</span>\n" +
+                        "\n" +
+                        "  </div>\n" +
+                        "    <p style=\"\n" +
+                        "    padding: 5px 0 0 8px;\n" +
+                        "\">  Solution validation </p>\n" +
+                        "</div>");
+
+                    let basePostUrl = "{{ path('code_submit_ajax', {'probId': data.problem.probid, 'langId': 'LANG_ID' }) }}";
+                    let selectedLang = $('#form_language').val();
+                    let postUrl = basePostUrl.replace('LANG_ID', selectedLang);
+
+                    let sourceText = $("#form_source").val();
+
+
+                    $.post(postUrl, {source: sourceText}, function (response) {
+
+                        submitId = response.submitId;
+
+                        console.log('submitId'.submitId);
+                        if (submitId !== null) {
+                            intervalId = setInterval(refreshDetails, 1000);
+                            console.log("intervalId", intervalId);
+                        }
+
+                    }).fail(function (result) {
+                        console.log(JSON.stringify(result));
+                    });
+
+                }
+
+                function refreshDetails() {
+
+                    let refreshPostUrl = "{{ path('details', {'submitId': 0 }) }}";
+                    let postUrl = refreshPostUrl.replace('0', submitId);
+
+                    $.post(postUrl, function (details) {
+
+                        let content = details.content;
+
+                        let result = details.result;
+                        if (content !== null) {
+
+                            $("#details").html("");
+                            $("#details").append("<div id=\"content\">" + content + "</div>");
+
+                            if (result) {
+
+                                $("#ajax_submit_btn").attr("disabled", "true");
+
+                                $('#exampleModal').modal('toggle');
+                                $('#exampleModal').modal('show');
+                                $('#exampleModal').modal('hide');
+
+                            }
+
+                            if (intervalId !== null) {
+                                console.log("clearInterval", intervalId);
+
+                                clearInterval(intervalId);
+                                intervalId = null;
+                                submitId = null;
+                            }
+                        }
+                    });
+                }
+
+                function editorField() {
+                    let activeLi = document.getSelection().baseNode.textContent.trim();
+                    if (activeLi === 'Example:') {
+                        console.log(activeLi);
+
+                        $("#source_code").attr('hidden', true);
+                        $("#source_example").attr('hidden', false);
+
+                        let editor = ace.edit("editor2");
+
+                        let selectWithLanguage = document.getElementById('form_language');
+                        let language = selectWithLanguage.value;
+
+                        editor.getSession().setValue(getExample(language));
+
+                    } else {
+                        $("#source_example").attr('hidden', true);
+                        $("#source_code").attr('hidden', false);
+                    }
+
+                }
+
+                function getExample(language) {
+                    switch (language) {
+                        case 'c':
+                            return '#include <stdio.h>\n' +
+                                '\n' +
+                                'int main() {\n' +
+                                '\tint i, ntests;\n' +
+                                '\tchar name[100];\n' +
+                                '\n' +
+                                '\tscanf("%d\\n", &ntests);\n' +
+                                '\n' +
+                                '\tfor (i = 0; i < ntests; i++) {\n' +
+                                '\t\tscanf("%s\\n", name);\n' +
+                                '\t\tprintf("Hello %s!\\n", name);\n' +
+                                '\t}\n' +
+                                '}';
+                        case 'cpp':
+                            return '#include <iostream>\n' +
+                                '#include <string>\n' +
+                                '\n' +
+                                'using namespace std;\n' +
+                                '\n' +
+                                'int main() {\n' +
+                                '\tint ntests;\n' +
+                                '\tstring name;\n' +
+                                '\n' +
+                                '\tcin >> ntests;\n' +
+                                '\tfor (int i = 0; i < ntests; i++) {\n' +
+                                '\t\tcin >> name;\n' +
+                                '\t\tcout << "Hello " << name << "!" << endl;\n' +
+                                '\t}\n' +
+                                '}';
+                        case 'java':
+                            return 'import java.util.*;\n' +
+                                '\n' +
+                                'class Main {\n' +
+                                '\n' +
+                                '    /**\n' +
+                                '     * Example Java app for calculating sum of two integers\n' +
+                                '     */\n' +
+                                '    public static void main(String[] args) {\n' +
+                                '        //Get input arguments\n' +
+                                '        Scanner scanner = new Scanner(System.in);\n' +
+                                '\n' +
+                                '        int firstInputArgument = scanner.nextInt();\n' +
+                                '        int secondInputArgument = scanner.nextInt();\n' +
+                                '\n' +
+                                '        //return result as output\n' +
+                                '        System.out.println(firstInputArgument + secondInputArgument);\n' +
+                                '    }\n' +
+                                '}\n';
+                        case 'js':
+                            return 'var fs = require(\'fs\');\n' +
+                                '\n' +
+                                '//Get input arguments\n' +
+                                'var inputArgsStringArray = fs.readSync(0,2000000,null,\'utf-8\')[0].split(\'\\n\').map(function(e){return e.trim();}).filter(function(s){return s && s != \'\'});\n' +
+                                '\n' +
+                                '//return result as output\n' +
+                                'console.log(parseInt(inputArgsStringArray[0]) + parseInt(inputArgsStringArray[1]));';
+                        case 'kt':
+                            return 'import java.util.*\n' +
+                                '\n' +
+                                'fun main(args: Array<String>) {\n' +
+                                '    var scanner = Scanner(System.`in`)\n' +
+                                '    val nTests = scanner.nextInt()\n' +
+                                '    for (i in 1..nTests) {\n' +
+                                '\t    System.`out`.format("Hello %s!%n", scanner.next())\n' +
+                                '    }\n' +
+                                '}\n';
+                        default:
+                            return '\n';
+                    }
+                }
+
+            </script>
+        </div>
+    </div>
+
+
+    {{ form_end(form) }}
+
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Congratulations!</h4>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+
+                </div>
+                <div class="modal-body">
+                    Problem {{ data.problem.name }} is solved! <br><br>
+                    <button type="button" class="btn-primary btn"
+                            style="background-color: #a93795; border: 0px; color: #fff;" data-dismiss="modal"
+                            onclick="back()">Return to task list
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

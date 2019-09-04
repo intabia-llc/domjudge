@@ -1,0 +1,107 @@
+{% extends "@DOMJudge/team/base.html.twig" %}
+{% import _self as self %}
+
+{% block title %} Problem: {{ problem.name }}{% endblock %}
+
+{% block content %}
+
+    <h1>
+        {{ problem.name }}
+    </h1>
+
+    <div class="row" style="height: 100%">
+        <div class="col" style="height: 100%">
+
+            <h3 class="teamoverview">Problem text</h3>
+
+            <embed src="/team/problems/{{ problem.probid }}/text" class="col" width=100% height=100%
+                   type="application/pdf">
+        </div>
+        <div class="col">
+
+            <h3 class="teamoverview">Language</h3>
+
+            <form action="lang.php">
+                <label for="problems-filter"></label>
+
+                <select class="select2 form-control" data-filter-field="language-id" name="currentLang">
+                    {%- for language in languages %}
+
+                        <option
+                            value="{{ language.langId }}" {%- if language.langId == curLang -%} selected {%- endif -%}>
+                            {{ language.name }}
+                        </option>
+                    {%- endfor %}
+                </select>
+                <div class="form-group text-right" style="margin-top: 5px">
+                    <button type="button" class="btn-success btn text-right" onClick="dataSelect(this.form)">OK
+                    </button>
+                </div>
+            </form>
+
+
+            <script>
+                function dataSelect(f) {
+                    let n = f.currentLang.selectedIndex;
+                    let current = f.currentLang.options[n].value;
+                    let url = '{{ path('code_editor', {probId: problem.probid, langId: curLang, tutorialView: 0 }) }}';
+                    let array = url.split("/");
+                    array[array.length - 1] = current;
+
+                    window.location = array.join("/");
+                }
+            </script>
+
+            <form action="lang.php">
+
+                <h3 class="teamoverview">Code editor</h3>
+                {% block extrahead %}
+                    {{ parent() }}
+                    <script type="text/javascript" src="{{ asset('js/ace/ace.js') }}" charset="utf-8"></script>
+                {% endblock %}
+
+                <ul class="nav nav-tabs source-tab-nav">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" role="tab">{{ 'Editor' }}</a>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content source-tab">
+
+                    <div id="code_editor" role="tabpanel" name="editor">
+                        {{ '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n' | codeEditor(1, curLang, true) }}
+                    </div>
+
+                </div>
+
+                <div class="form-group text-right" style="margin-top: 5px">
+                    <button type="submit" class="btn-success btn text-right" onClick="submitFile(this.form)"><i
+                            class="fas fa-cloud-upload-alt"></i> Submit
+                    </button>
+                </div>
+
+                <script>
+                    function submitFile(f) {
+                        alert("form: " + f.editor);
+                        let n = f.currentLang.selectedIndex;
+                        let current = f.currentLang.options[n].value;
+                        let url = '{{ path('code_editor', {probId: problem.probid, langId: curLang, tutorialView: 0 }) }}';
+                        let array = url.split("/");
+                        array[array.length - 1] = current;
+
+                        window.location = array.join("/");
+                    }
+                </script>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+{% endblock %}

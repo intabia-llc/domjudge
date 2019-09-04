@@ -2,18 +2,23 @@
 
 namespace DOMJudgeBundle\Controller\Jury;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use DOMJudgeBundle\Controller\BaseController;
 use DOMJudgeBundle\Entity\Contest;
 use DOMJudgeBundle\Entity\ContestProblem;
 use DOMJudgeBundle\Entity\RemovedInterval;
+use DOMJudgeBundle\Entity\Team;
+use DOMJudgeBundle\Entity\User;
 use DOMJudgeBundle\Form\Type\ContestType;
 use DOMJudgeBundle\Form\Type\FinalizeContestType;
 use DOMJudgeBundle\Form\Type\RemovedIntervalType;
 use DOMJudgeBundle\Service\DOMJudgeService;
 use DOMJudgeBundle\Service\EventLogService;
+use DOMJudgeBundle\Service\NotificationService;
 use DOMJudgeBundle\Utils\Utils;
+use phpDocumentor\Reflection\DocBlock\Tags\Uses;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -45,19 +50,27 @@ class ContestController extends BaseController
     protected $eventLogService;
 
     /**
+     * @var NotificationService
+     */
+    protected $notificationService;
+
+    /**
      * TeamCategoryController constructor.
      * @param EntityManagerInterface $em
-     * @param DOMJudgeService        $dj
-     * @param EventLogService        $eventLogService
+     * @param DOMJudgeService $dj
+     * @param EventLogService $eventLogService
+     * @param NotificationService $notificationService
      */
     public function __construct(
         EntityManagerInterface $em,
         DOMJudgeService $dj,
-        EventLogService $eventLogService
+        EventLogService $eventLogService,
+        NotificationService $notificationService
     ) {
-        $this->em              = $em;
-        $this->dj              = $dj;
-        $this->eventLogService = $eventLogService;
+        $this->em                  = $em;
+        $this->dj                  = $dj;
+        $this->eventLogService     = $eventLogService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -523,6 +536,38 @@ class ContestController extends BaseController
         return $this->render('@DOMJudge/jury/contest_add.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/notify/{cid}", name="notify", requirements={"cid": "\d+"})
+     * @param int $cid
+     * @param Request $request
+     * @throws \Exception
+     */
+    public function notifyAllUsers(int $cid, Request $request) {
+
+        /** @var Contest $contest */
+        $contest = $this->em->getRepository(Contest::class)->find($cid);
+
+        /** @var Team[] $teams */
+        $teams = $contest->getTeams();
+
+        if ($contest->getTeams()->isEmpty()) {
+            $teams = $this->em->getRepository(Team::class)->findAll();
+        }
+
+        foreach($teams as /** @var Team $team */ $team) {
+            if($team->getTeamid() !== 1 && $team->getTeamid() !== 2) {
+                error_log("TEAM = " . $team->getName());
+                $this->notificationService->sendMessage($team->getName(), 'Тренинг',
+                    $this->renderView('@DOMJudge/jury/training_message.html.twig',
+                        ['name' => $team->getName(), 'cid' => $cid, 'contestname' => $contest->getShortname(),
+                            'start' => substr($contest->getStarttimeString(), 11, 5) .
+                                $contest->getStartTimeObject()->format(' d.m.Y'),
+                            'end' => substr($contest->getEndtimeString(), 11, 5) .
+                                $contest->getEndTimeObject()->format(' d.m.Y')]), $cid);
+            }
+        }
     }
 
     /**

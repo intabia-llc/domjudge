@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
-    <a class="navbar-brand hidden-sm-down" href="{{ path('public_index') }}">DOMjudge</a>
+    <a class="navbar-brand hidden-sm-down" href="{{ path('public_index') }}">Incode</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#menuDefault"
             aria-controls="menuDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -24,7 +24,7 @@
 
             {% if is_granted('ROLE_TEAM') %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ path('team_index') }}">
+                    <a class="nav-link" href="{{ path('team_index', {'tutorialView': 0}) }}">
                         <i class="fas fa-arrow-right"></i> Team
                     </a>
                 </li>

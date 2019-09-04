@@ -55,6 +55,16 @@
     {% endif %}
 
     <thead>
+
+    {#{% set link = path('jury_submission_edit_source', {submission: submission.submitid, rank: scoreboard.scores[previousTeam.teamid].rank}) %>#}
+
+
+    {#path('code_editor', {'probId': problem.probid, 'langId': 'java' }) %}#}
+    {#{% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java' }) %}#}
+    {#{% set link = path('team_submit') %}#}
+    {#{% set link = path('team_submit_redactor') %} Ок. Отправка пустого файла на проверку#}
+
+
     <tr class="scoreheader">
         <th title="rank" scope="col">rank</th>
         <th title="team name" scope="col" colspan="{{ teamColspan }}">team</th>
@@ -67,13 +77,8 @@
                     {% if jury %}
                         {% set link = path('jury_problem', {'probId': problem.probid}) %}
                     {% elseif problem.problem.hasProblemtext %}
-                        {% if public %}
-                            {% set link = path('public_problem_text', {probId: problem.probid}) %}
-                            {% set target = '_blank' %}
-                        {% else %}
-                            {% set link = path('team_problem_text', {probId: problem.probid}) %}
-                            {% set target = '_blank' %}
-                        {% endif %}
+                        {% set link = path('code_editor', {'probId': problem.probid, 'langId': 'java', 'tutorialView': 0}) %}
+                        {% set target = '_blank' %}
                     {% endif %}
                 {% endif %}
                 <th title="problem {{ problem.problem.name }}" scope="col">

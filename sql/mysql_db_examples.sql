@@ -46,6 +46,12 @@ INSERT INTO `contestteam` (`cid`, `teamid`) VALUES
 (1, 2);
 
 --
+-- Dumping data for table `notification`
+--
+INSERT INTO `notification` (`cid`, `userid`, `template`) VALUES
+(1, 1, 'Тренинг');
+
+--
 -- Dumping data for table `executable`
 --
 

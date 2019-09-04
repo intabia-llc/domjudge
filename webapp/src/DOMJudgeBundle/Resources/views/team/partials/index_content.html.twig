@@ -4,20 +4,23 @@
 {% elseif not contest.freezeData.started %}
     <h1 id="teamwelcome" class="text-center">Welcome team <span id="teamwelcometeam">{{ team.name }}</span>!</h1>
     <h2 id="contestnotstarted" class="text-center">
-        Contest {{ contest | printContestStart }}
+        Please wait, the contest has not started yet...
+        <div>
+            {% include '@DOMJudge/partials/timer.html.twig' with {contest: current_team_contest} %}
+        </div>
     </h2>
 {% else %}
 
     <div id="teamscoresummary">
         {% set displayRank = not contest.freezeData.showFrozen %}
-        {% include '@DOMJudge/partials/scoreboard_table.html.twig' with {displayRank: displayRank, jury: false, public: false} %}
+        {% include '@DOMJudge/partials/scoreboard_table_team.html.twig' with {displayRank: displayRank, jury: false, public: false, tutorial_view: tutorial_view} %}
     </div>
 
     <div class="mt-4" data-flash-messages>
         {% include '@DOMJudge/partials/messages.html.twig' %}
     </div>
 
-    <div class="row">
+    <div class="row" style="display: none">
         <div class="col">
             <h3 class="teamoverview">Submissions</h3>
 
@@ -39,7 +42,7 @@
             {% endif %}
 
             <div class="m-1">
-                <a href="{{ path('team_clarification_add') }}" class="btn btn-secondary btn-sm" data-ajax-modal>
+                <a href="{{ path('team_clarification_add') }}" class="btn btn-secondary btn-sm" style="background-color: #a93795; border: 0px;    color: #fff;" data-ajax-modal>
                     request clarification
                 </a>
             </div>

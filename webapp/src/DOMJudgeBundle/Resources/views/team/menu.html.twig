@@ -1,34 +1,41 @@
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand hidden-sm-down" href="{{ path('team_index') }}">DOMjudge</a>
+<script src="{{ asset('js/enjoyhint/enjoyhint.min.js') }}"></script>
+<script src="{{ asset('js/enjoyhint/hint-sequence.js') }}"></script>
+<link href="{{ asset('js/enjoyhint/enjoyhint.css') }}" rel="stylesheet">
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" style="background-color: #2b2867 !important;"
+     xmlns="http://www.w3.org/1999/html">
+    <a class="navbar-brand hidden-sm-down" href="{{ path('team_index', {'tutorialView': 0}) }}"><img src="{{ asset('images/incodelogowhite.png') }}" alt="Intabia" width="100" style="margin-bottom: 5px;"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#menuDefault"
             aria-controls="menuDefault" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
 
     {% set current_route = app.request.attributes.get('_route') %}
+    <div id = "timerId" style="min-width: 135px">
+        {% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}
+    </div>
 
-    <div class="collapse navbar-collapse" id="menuDefault">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item {% if current_route in ['team_index', 'team_clarification', 'team_clarification_add', 'team_submission'] %}active{% endif %}">
-                <a class="nav-link" href="{{ path('team_index') }}"><i class="fas fa-home"></i> Home</a>
-            </li>
-            <li class="nav-item {% if current_route == 'team_problems' %}active{% endif %}">
-                {% if is_granted('ROLE_JURY') or current_team_contest.freezeData.started %}
-                    <a class="nav-link" href="{{ path('team_problems') }}">
-                        <i class="fas fa-book-open"></i> Problemset
-                    </a>
-                {% else %}
-                    <a class="nav-link disabled"><i class="fas fa-book-open"></i> Problemset</a>
-                {% endif %}
-            </li>
-            {% if have_printing %}
-                <li class="nav-item {% if current_route == 'team_print' %}active{% endif %}">
-                    <a class="nav-link" href="{{ path('team_print') }}"><i class="fas fa-file-alt"></i> Print</a>
+    <div class="collapse navbar-collapse " id="menuDefault">
+        <ul id="crumbs" class="navbar-nav mr-auto">
+
+            {% if current_team_contest is not null %}
+                <li class="nav-item">
+                    <a class="nav-link"
+                       href="{{ path('contest_index', {'contest': current_team_contest, 'contests': current_team_contests, 'change_path': 'team_change_contest', 'show_no_contest': false}) }}">
+                        {{ current_team_contest.name }}</a>
                 </li>
             {% endif %}
-            <li class="nav-item {% if current_route in ['team_scoreboard', 'team_team'] %}active{% endif %}">
-                <a class="nav-link" href="{{ path('team_scoreboard') }}"><i class="fas fa-list-ol"></i> Scoreboard</a>
+
+            {% if current_problem is not null %}
+
+                <li class="nav-item" >
+                    <a class="nav" style="color: #6c757d; padding-top: 7px "> -> </a>
+                </li>
+
+            <li class="nav-item {% if current_route in ['team_index', 'team_clarification', 'team_clarification_add', 'team_submission'] %}active{% endif %}">
+                <a class="nav-link" href="{{ path('team_index', {'tutorialView': 0}) }}"> {{ current_problem.name }} </a>
             </li>
+            {% endif %}
 
             {% if is_granted('ROLE_JURY') or is_granted('ROLE_BALLOON') %}
                 <li class="nav-item">
@@ -37,36 +44,32 @@
             {% endif %}
         </ul>
 
-        <div id="submitbut">
-            {% if is_granted('ROLE_JURY') or current_team_contest.freezeData.started %}
-                <a class="nav-link justify-content-center" data-ajax-modal data-ajax-modal-after="initSubmitModal" href="{{ path('team_submit') }}">
-                    <button type="button" class="btn btn-success btn-sm">
-                        <i class="fas fa-cloud-upload-alt"></i> Submit
-                    </button>
-                </a>
-            {% else %}
-                <a class="nav-link justify-content-center">
-                    <button type="button" class="btn btn-success btn-sm disabled" disabled>
-                        <i class="fas fa-cloud-upload-alt"></i> Submit
-                    </button>
-                </a>
-            {% endif %}
-        </div>
-
-        {% include '@DOMJudge/partials/menu_login_logout_button.html.twig' with {confirmLogout: true} %}
 
         <ul class="navbar-nav">
+            {#style="display: none">#}
             <li class="ajax-loader-container">
                 <div class="spinner-border spinner-border-sm ajax-loader" style="display: none;" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
             </li>
-            {% if current_team_contests | length > 1 %}
-                {% include '@DOMJudge/partials/menu_change_contest.html.twig' with {contest: current_team_contest, contests: current_team_contests, change_path: 'team_change_contest', show_no_contest: false} %}
-            {% endif %}
         </ul>
 
-        {% include '@DOMJudge/partials/menu_countdown.html.twig' with {contest: current_team_contest} %}
+        {#<a class="navbar-brand hidden-sm-down" href="{{ path('instruction') }}">#}
+        {#<a class="navbar-brand hidden-sm-down" href="{{ path('instruction_index') }}">Instruction#}
+            {#<img src="{{ asset('images/teams/instruction.png') }}" alt="Instruction" width="32px" height="32px"#}
+                 {#style="margin-bottom: 5px; margin-top: 5px">#}
+        {#</a>#}
+
+        <div id="tutorial_div">
+            <img id="tutorial" src="{{ asset('images/teams/instruction.png') }}" alt="Instruction" width="32px" height="32px" style="margin-bottom: 5px; margin-top: 5px" onclick="tutorial()">
+        </div>
+
+        <script>
+            function tutorial() {
+                quickTipsStart();
+            }
+        </script>
+        {% include '@DOMJudge/partials/menu_login_logout_button.html.twig' with {confirmLogout: true} %}
+
     </div>
 </nav>
-{% include '@DOMJudge/partials/scoreboard_progress_bar.html.twig' with {margin: -9, contest: current_team_contest} %}

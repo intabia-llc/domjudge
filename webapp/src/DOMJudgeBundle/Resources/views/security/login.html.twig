@@ -1,6 +1,6 @@
 {% extends "@DOMJudge/base.html.twig" %}
 
-{% block title %}DOMjudge Login{% endblock %}
+{% block title %}incode login{% endblock %}
 
 {% block extrahead %}
     <link rel="stylesheet" href="{{ asset('style_login.css') }}">
@@ -15,7 +15,7 @@
     {% set showregular = not hasaltmethods or error %}
 
     <div class="form-signin" id="loginform">
-        <img class="mb-4" src="{{ asset('images/DOMjudgelogo.png') }}" alt="DOMjudge" width="72">
+        <img class="mb-4" src="{{ asset('images/incodelogonew.png') }}" alt="Intabia" width="150">
         {% include '@DOMJudge/partials/messages.html.twig' %}
         {% if app.user is not null %}
             {% set message = 'You are currently automatically logged in as ' ~ app.user.username ~ '.<br />Use the form below to change login.' %}
@@ -107,7 +107,7 @@
                                placeholder="Password" required autocomplete="current-password">
                     </div>
                 </div>
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+                <button class="btn btn-lg btn-primary btn-block" style="background-color: #a93795; border: 0px" type="submit">Sign in</button>
                 {% if allow_registration %}
                     <div class="mt-3">
                         Don't have an account?<br/>
@@ -117,7 +117,7 @@
             </form>
         </div>
 
-        <p class="mt-5 mb-3 small text-muted">DOMjudge {{ DOMJUDGE_VERSION }}</p>
+
     </div>
 
 {% endblock %}
