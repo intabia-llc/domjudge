@@ -28,7 +28,7 @@ endif
 BUILD_DOCS=no
 ifneq ($(DOC_BUILD_ENABLED),no)
 ifneq ($(MAKECMDGOALS),maintainer-conf)
-BUILD_DOCS=yes
+BUILD_DOCS=no
 endif
 endif
 export BUILD_DOCS
